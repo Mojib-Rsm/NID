@@ -119,7 +119,7 @@ const ServerCopy = ({ data }: { data: FormSchemaType }) => {
         <Card className="font-sans shadow-lg overflow-hidden bg-white text-black">
             <CardContent className="p-6">
                 <header className="flex items-center gap-4 mb-4">
-                    <Image src="https://seeklogo.com/images/B/bangladesh-govt-logo-A2C76D6556-seeklogo.com.png" alt="Bangladesh Govt Logo" width={40} height={40} data-ai-hint="emblem logo" />
+                    <Image src="/election-commission-logo.png" alt="Bangladesh Govt Logo" width={40} height={40} data-ai-hint="emblem logo" />
                     <div>
                         <h2 className="text-lg font-bold text-green-800">Bangladesh Election Commission</h2>
                         <p className="text-sm text-yellow-600 font-semibold">National Identity Registration Wing (NIDW)</p>
