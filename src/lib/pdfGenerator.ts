@@ -218,6 +218,7 @@ const addServerCopy = async (doc: jsPDF, data: FormSchemaType) => {
     currentY = addSection('অন্যান্য তথ্য', [
         ['লিঙ্গ', data.gender || ''],
         ['রক্তের গ্রুপ', data.bloodGroup || ''],
+        ['মোবাইল', data.mobileNumber || ''],
     ], currentY);
     
     // Addresses below tables

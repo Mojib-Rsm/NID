@@ -32,6 +32,7 @@ const defaultValues: FormSchemaType = {
   bloodGroup: "O+",
   presentAddress: "123 Main St, Anytown, USA",
   permanentAddress: "123 Main St, Anytown, USA",
+  mobileNumber: "",
 };
 
 type CardType = "nid" | "server" | "signature";

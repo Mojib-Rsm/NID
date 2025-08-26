@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { DatePicker } from "./ui/date-picker"
-import { User, Calendar, MapPin, Fingerprint, Image as ImageIcon, PenSquare, Save, FolderOpen, Download, Hash, Home, Map } from "lucide-react"
+import { User, Calendar, MapPin, Fingerprint, Image as ImageIcon, PenSquare, Save, FolderOpen, Download, Hash, Home, Map, Phone } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Dispatch, SetStateAction } from "react"
 import React from "react"
@@ -38,6 +38,7 @@ export const formSchema = z.object({
   bloodGroup: z.string().optional(),
   presentAddress: z.string().optional(),
   permanentAddress: z.string().optional(),
+  mobileNumber: z.string().optional(),
 })
 
 export type FormSchemaType = z.infer<typeof formSchema>
@@ -270,7 +271,8 @@ export function IdentityForm({ onDataChange, onGeneratePdf, onSave, onLoad, form
                 )}
               />
             </div>
-             <FormField
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <FormField
                 control={form.control}
                 name="voterArea"
                 render={({ field }) => (
@@ -283,6 +285,20 @@ export function IdentityForm({ onDataChange, onGeneratePdf, onSave, onLoad, form
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="mobileNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><Phone className="mr-2 h-4 w-4" />Mobile Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., 01700000000" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}

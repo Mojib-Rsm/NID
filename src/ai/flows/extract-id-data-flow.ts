@@ -35,6 +35,7 @@ const ExtractIdDataOutputSchema = z.object({
   bloodGroup: z.string().describe("The blood group."),
   presentAddress: z.string().describe("The full present address."),
   permanentAddress: z.string().describe("The full permanent address."),
+  mobileNumber: z.string().describe("The mobile phone number."),
 });
 export type ExtractIdDataOutput = z.infer<typeof ExtractIdDataOutputSchema>;
 
@@ -61,6 +62,7 @@ You will be provided with an image or a PDF of an ID card or a server copy of on
 - Spouse's Name
 - Gender
 - Blood Group
+- Mobile Number
 - Present Address (Combine all parts of the present address into one single string. Clean it up for readability.)
 - Permanent Address (Combine all parts of the permanent address into one single string. Clean it up for readability.)
 - Address (Combine both present and permanent addresses into a single string for simple NID cards. For server copies, just use the Present Address.)

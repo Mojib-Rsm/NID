@@ -173,6 +173,7 @@ const ServerCopy = ({ data }: { data: FormSchemaType }) => {
                         <table className="w-full"><tbody>
                            <ServerField label="লিঙ্গ" value={data.gender} />
                            <ServerField label="রক্তের গ্রুপ" value={data.bloodGroup} />
+                           <ServerField label="মোবাইল" value={data.mobileNumber} />
                         </tbody></table>
                     </div>
                 </main>
