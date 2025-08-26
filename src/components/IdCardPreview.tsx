@@ -32,11 +32,16 @@ const Barcode = () => {
     )
 }
 
-const QrCode = () => (
-    <div className="w-24 h-24 p-1 border bg-white">
-        <Image src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://firebase.google.com/" alt="QR Code" width={96} height={96} className="w-full h-full" data-ai-hint="qr code" />
-    </div>
-)
+const QrCode = ({ data }: { data: FormSchemaType }) => {
+    const qrData = `Name: ${data.name}\nNID: ${data.nidNumber}\nDOB: ${data.dob ? new Date(data.dob).toLocaleDateString('en-CA') : ''}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}`;
+    
+    return (
+        <div className="w-24 h-24 p-1 border bg-white">
+            <Image src={qrUrl} alt="QR Code" width={96} height={96} className="w-full h-full" data-ai-hint="qr code" />
+        </div>
+    )
+}
 
 
 const Field = ({ label, value }: { label: string; value: string | undefined }) => (
@@ -133,7 +138,7 @@ const ServerCopy = ({ data }: { data: FormSchemaType }) => {
                         ) : <div className="w-full max-w-[120px] aspect-[4/5] bg-gray-200" />}
                         <p className="mt-2 text-sm font-semibold">{data.name}</p>
                         <div className="mt-4">
-                           <QrCode />
+                           <QrCode data={data} />
                         </div>
                     </div>
                     <div className="col-span-2">
