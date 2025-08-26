@@ -2,6 +2,8 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import type { FormSchemaType } from '@/components/IdentityForm';
 
+type CardType = "nid" | "server" | "signature";
+
 // A placeholder for a national emblem, as an inline SVG.
 // Note: jspdf's addSvg is experimental. A raster image (PNG) is more reliable.
 const emblemSvg = `
@@ -74,7 +76,7 @@ const addFrontPage = (doc: jsPDF, data: FormSchemaType) => {
     try {
       doc.addImage(data.signature, 'PNG', 170, 115, 50, 25, undefined, 'FAST');
       doc.setDrawColor(0,0,0);
-      doc.line(170, 140, 220, 140); // line under signature
+      doc.line(170, 220, 140, 140); // line under signature
       doc.text('Signature', 185, 145);
     } catch (e) {
       console.error("Error adding signature to PDF", e);
@@ -119,8 +121,80 @@ const addBackPage = (doc: jsPDF, data: FormSchemaType) => {
     doc.text('This card is the property of the government. If found, please return to the nearest police station.', cardWidth / 2, 148, { align: 'center' });
 };
 
+const addServerCopy = (doc: jsPDF, data: FormSchemaType) => {
+    const pageWidth = 242.6;
+    const pageHeight = 300; // Taller than a standard card
+    doc.addPage([pageWidth, pageHeight]);
 
-export const generatePdf = async (data: FormSchemaType) => {
+    // Simple white background with dashed border
+    doc.setDrawColor(150, 150, 150);
+    doc.setLineDash([5, 5], 0);
+    doc.rect(5, 5, pageWidth - 10, pageHeight - 10, 'S');
+    doc.setLineDash([], 0);
+
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.text('Server Copy', pageWidth / 2, 25, { align: 'center' });
+
+    if (data.photo) {
+        doc.addImage(data.photo, 'JPEG', pageWidth / 2 - 30, 40, 60, 75);
+    }
+    
+    const fields = [
+      { label: 'Name', value: data.name },
+      { label: "Father's Name", value: data.fatherName },
+      { label: "Mother's Name", value: data.motherName },
+      { label: 'Date of Birth', value: data.dob ? new Date(data.dob).toLocaleDateString('en-GB') : '' },
+      { label: 'NID Number', value: data.nidNumber, font: 'courier' },
+      { label: 'Address', value: data.address },
+    ];
+
+    let yPos = 135;
+    doc.setFontSize(10);
+    fields.forEach(field => {
+        doc.setFont('helvetica', 'bold');
+        doc.text(field.label + ':', 20, yPos);
+        doc.setFont('helvetica', 'normal');
+        if (field.font === 'courier') doc.setFont('courier', 'bold');
+        doc.text(field.value || '', 100, yPos);
+        yPos += 18;
+    });
+
+    if (data.signature) {
+        doc.addImage(data.signature, 'PNG', pageWidth/2 - 25, yPos + 5, 50, 25, undefined, 'FAST');
+    }
+    doc.line(pageWidth/2 - 30, yPos + 35, pageWidth/2 + 30, yPos + 35);
+    doc.setFontSize(8);
+    doc.text('Signature', pageWidth/2, yPos + 42, {align: 'center'});
+}
+
+const addSignatureCard = (doc: jsPDF, data: FormSchemaType) => {
+  doc.addPage();
+  const cardWidth = 242.6;
+  const cardHeight = 153;
+
+  doc.setFillColor(250, 250, 250);
+  doc.rect(0, 0, cardWidth, cardHeight, 'F');
+  doc.setDrawColor(119, 141, 169);
+  doc.rect(2, 2, cardWidth-4, cardHeight-4);
+
+  doc.setTextColor(0,0,0);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text(data.name, cardWidth/2, 50, {align: 'center'});
+
+  if (data.signature) {
+    doc.addImage(data.signature, 'PNG', cardWidth/2 - 50, 60, 100, 40, undefined, 'FAST');
+  }
+  doc.setDrawColor(0,0,0);
+  doc.line(cardWidth/2 - 50, 105, cardWidth/2 + 50, 105);
+  doc.setFontSize(8);
+  doc.text('Signature', cardWidth/2, 115, {align: 'center'});
+}
+
+
+export const generatePdf = async (data: FormSchemaType, cardType: CardType) => {
   if (typeof window === 'undefined') {
     return;
   }
@@ -130,9 +204,20 @@ export const generatePdf = async (data: FormSchemaType) => {
     unit: 'pt',
     format: [242.6, 153],
   });
+  doc.deletePage(1); // remove default page
 
-  addFrontPage(doc, data);
-  addBackPage(doc, data);
+  switch(cardType) {
+    case 'nid':
+      addFrontPage(doc, data);
+      addBackPage(doc, data);
+      break;
+    case 'server':
+      addServerCopy(doc, data);
+      break;
+    case 'signature':
+      addSignatureCard(doc, data);
+      break;
+  }
   
-  doc.save('IdentityForge-NID.pdf');
+  doc.save(`IdentityForge-${cardType}.pdf`);
 };

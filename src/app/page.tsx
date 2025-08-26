@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IdentityForm, type FormSchemaType, formSchema } from "@/components/IdentityForm";
@@ -8,26 +8,33 @@ import { IdCardPreview } from "@/components/IdCardPreview";
 import { generatePdf } from "@/lib/pdfGenerator";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, Sparkles, Loader2 } from "lucide-react";
 import * as z from "zod";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { extractIdData } from "@/ai/flows/extract-id-data-flow";
 
 
 const defaultValues: FormSchemaType = {
-  name: "",
-  fatherName: "",
-  motherName: "",
-  address: "",
-  nidNumber: "",
-  dob: undefined,
+  name: "John Doe",
+  fatherName: "Richard Doe",
+  motherName: "Jane Doe",
+  address: "123 Main St, Anytown, USA",
+  nidNumber: "1234567890",
+  dob: new Date("1990-01-01"),
   photo: undefined,
   signature: undefined,
 };
+
+type CardType = "nid" | "server" | "signature";
 
 
 export default function Home() {
   const [data, setData] = useState<FormSchemaType>(defaultValues);
   const { toast } = useToast();
   const [theme, setTheme] = useState('light');
+  const [cardType, setCardType] = useState<CardType>("nid");
+  const [isExtracting, startExtracting] = useTransition();
 
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
@@ -96,7 +103,7 @@ export default function Home() {
       form.trigger();
       return;
     }
-    generatePdf(result.data);
+    generatePdf(result.data, cardType);
   };
   
   const toggleTheme = () => {
@@ -104,6 +111,46 @@ export default function Home() {
     setTheme(newTheme);
     document.documentElement.classList.toggle('dark', newTheme === 'dark');
   };
+  
+  const handleFileExtract = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUri = reader.result as string;
+        startExtracting(async () => {
+          try {
+            const extractedData = await extractIdData({ photoDataUri: dataUri });
+            form.reset({
+              ...form.getValues(),
+              name: extractedData.name,
+              fatherName: extractedData.fatherName,
+              motherName: extractedData.motherName,
+              nidNumber: extractedData.nidNumber,
+              address: extractedData.address,
+              dob: new Date(extractedData.dob),
+            });
+            setData(form.getValues())
+            toast({
+              title: "Data Extracted",
+              description: "The information from the ID card has been filled into the form.",
+            });
+          } catch(err) {
+            console.error(err)
+            toast({
+              variant: "destructive",
+              title: "Extraction Failed",
+              description: "Could not extract data from the image. Please try a clearer image.",
+            });
+          }
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+     // Reset file input to allow re-selection of the same file
+     e.target.value = "";
+  }
+
 
   React.useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -129,7 +176,41 @@ export default function Home() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          <div className="w-full">
+          <div className="w-full space-y-6">
+            <Card>
+              <CardContent className="p-4 flex flex-col sm:flex-row gap-4">
+                 <div className="flex-1 space-y-2">
+                    <label className="text-sm font-medium">Card Style</label>
+                    <Select value={cardType} onValueChange={(v) => setCardType(v as CardType)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select card type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="nid">NID Card</SelectItem>
+                        <SelectItem value="server">Server Copy</SelectItem>
+                        <SelectItem value="signature">Signature Card</SelectItem>
+                      </SelectContent>
+                    </Select>
+                 </div>
+                 <div className="flex-1 space-y-2">
+                   <label htmlFor="image-extract-input" className="text-sm font-medium block">
+                      Extract from Image (AI)
+                    </label>
+                    <Button asChild className="w-full" variant="outline">
+                      <label htmlFor="image-extract-input" className="cursor-pointer">
+                         {isExtracting ? (
+                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                         ) : (
+                           <Sparkles className="mr-2 h-4 w-4" />
+                         )}
+                         Upload and Extract
+                      </label>
+                    </Button>
+                    <input id="image-extract-input" type="file" accept="image/*" className="sr-only" onChange={handleFileExtract} disabled={isExtracting} />
+                 </div>
+              </CardContent>
+            </Card>
+
             <IdentityForm
               onDataChange={setData}
               onGeneratePdf={handleGeneratePdf}
@@ -139,7 +220,7 @@ export default function Home() {
             />
           </div>
           <div className="w-full lg:sticky lg:top-8">
-            <IdCardPreview data={data} />
+            <IdCardPreview data={data} cardType={cardType} />
           </div>
         </div>
       </div>
