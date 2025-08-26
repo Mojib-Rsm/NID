@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import type { FormSchemaType } from "./IdentityForm"
 import Image from "next/image"
 import React, { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
 
 type CardType = "nid" | "server" | "signature";
 
