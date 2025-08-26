@@ -16,6 +16,7 @@ import { extractIdData } from "@/ai/flows/extract-id-data-flow";
 
 const defaultValues: FormSchemaType = {
   name: "John Doe",
+  nameBangla: "জন ডো",
   fatherName: "Richard Doe",
   motherName: "Jane Doe",
   address: "123 Main St, Anytown, USA",
@@ -23,6 +24,14 @@ const defaultValues: FormSchemaType = {
   dob: new Date("1990-01-01"),
   photo: undefined,
   signature: undefined,
+  pin: "1234567890123",
+  voterArea: "Anytown",
+  birthPlace: "Anytown",
+  spouseName: "Jane Doe",
+  gender: "Male",
+  bloodGroup: "O+",
+  presentAddress: "123 Main St, Anytown, USA",
+  permanentAddress: "123 Main St, Anytown, USA",
 };
 
 type CardType = "nid" | "server" | "signature";
@@ -71,8 +80,9 @@ export default function Home() {
         
         // Ensure dob is a Date object if it exists
         const dataToLoad = {
+            ...defaultValues, // ensure all fields are present
             ...parsedData,
-            dob: parsedData.dob ? new Date(parsedData.dob) : undefined,
+            dob: parsedData.dob ? new Date(parsedData.dob) : new Date(),
         };
 
         const validatedData = formSchema.safeParse(dataToLoad);
@@ -141,11 +151,7 @@ export default function Home() {
             const newDob = new Date(extractedData.dob);
             const updatedData = {
               ...form.getValues(),
-              name: extractedData.name,
-              fatherName: extractedData.fatherName,
-              motherName: extractedData.motherName,
-              nidNumber: extractedData.nidNumber,
-              address: extractedData.address,
+              ...extractedData,
               dob: newDob,
             };
             form.reset(updatedData);

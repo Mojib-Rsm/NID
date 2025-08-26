@@ -114,21 +114,29 @@ const NIDCardBack = ({ data }: { data: FormSchemaType }) => (
 
 const ServerCopy = ({ data }: { data: FormSchemaType }) => {
     const ServerField = ({ label, value }: { label: string; value: string | undefined | React.ReactNode}) => (
-        <div className="flex border-b border-gray-200 py-1.5">
-            <p className="w-1/3 text-sm text-gray-600">{label}</p>
-            <p className="w-2/3 text-sm font-medium text-black">{value || " "}</p>
-        </div>
+        <tr className="border-b border-gray-200">
+            <td className="w-1/3 py-1.5 px-2 text-sm text-gray-600">{label}</td>
+            <td className="w-2/3 py-1.5 px-2 text-sm font-medium text-black">{value || " "}</td>
+        </tr>
     );
+    const SectionHeader = ({ title }: { title: string }) => (
+      <div className="bg-cyan-100 border border-cyan-200 px-3 py-1 my-2">
+          <h3 className="text-md font-bold text-cyan-800">{title}</h3>
+      </div>
+    )
     
     return (
-        <Card className="font-sans shadow-lg overflow-hidden bg-white text-black">
-            <CardContent className="p-6">
-                <header className="flex items-center gap-4 mb-4">
-                    <Image src="/election-commission-logo.png" alt="Bangladesh Govt Logo" width={40} height={40} data-ai-hint="emblem logo" />
-                    <div>
-                        <h2 className="text-lg font-bold text-green-800">Bangladesh Election Commission</h2>
-                        <p className="text-sm text-yellow-600 font-semibold">National Identity Registration Wing (NIDW)</p>
+        <Card className="font-sans shadow-lg overflow-hidden bg-white text-black text-[12px]">
+            <CardContent className="p-4">
+                <header className="flex items-center justify-between gap-4 mb-4 border-b-2 border-gray-400 pb-2">
+                    <div className="flex items-center gap-4">
+                        <Image src="/bd_govt.png" alt="Bangladesh Govt Logo" width={40} height={40} data-ai-hint="emblem logo" />
+                        <div>
+                            <h2 className="text-lg font-bold text-green-800">Bangladesh Election Commission</h2>
+                            <p className="text-sm text-yellow-600 font-semibold">National Identity Registration Wing (NIDW)</p>
+                        </div>
                     </div>
+                    <Button size="sm">Home</Button>
                 </header>
 
                 <main className="grid grid-cols-3 gap-6">
@@ -142,30 +150,42 @@ const ServerCopy = ({ data }: { data: FormSchemaType }) => {
                         </div>
                     </div>
                     <div className="col-span-2">
-                        <div className="bg-cyan-50 border border-cyan-200 px-3 py-1 mb-4">
-                            <h3 className="text-md font-bold text-cyan-800">National Identity Information</h3>
-                        </div>
-                        <ServerField label="National ID No." value={<span className="font-bold text-red-600">{data.nidNumber}</span>} />
-                        
-                        <div className="bg-cyan-50 border border-cyan-200 px-3 py-1 mt-6 mb-4">
-                            <h3 className="text-md font-bold text-cyan-800">Personal Information</h3>
-                        </div>
-                        <ServerField label="Name (English)" value={data.name} />
-                        <ServerField label="Date of Birth" value={data.dob ? new Date(data.dob).toLocaleDateString('en-GB') : ''} />
-                        <ServerField label="Father's Name" value={data.fatherName} />
-                        <ServerField label="Mother's Name" value={data.motherName} />
-                        
-                        <div className="bg-cyan-50 border border-cyan-200 px-3 py-1 mt-6 mb-4">
-                            <h3 className="text-md font-bold text-cyan-800">Address</h3>
-                        </div>
-                        <div className="border-b border-gray-200 py-1.5">
-                            <p className="text-sm text-gray-600">Address</p>
-                            <p className="text-sm font-medium text-black">{data.address || " "}</p>
-                        </div>
+                        <SectionHeader title="জাতীয় পরিচিতি তথ্য" />
+                        <table className="w-full"><tbody>
+                          <ServerField label="জাতীয় পরিচয় পত্র নম্বর" value={data.nidNumber} />
+                          <ServerField label="পিন" value={data.pin} />
+                          <ServerField label="ভোটার এলাকা" value={data.voterArea} />
+                          <ServerField label="জন্মস্থান" value={data.birthPlace} />
+                          <ServerField label="স্বামী/স্ত্রীর নাম" value={data.spouseName} />
+                        </tbody></table>
 
+                        <SectionHeader title="ব্যক্তিগত তথ্য" />
+                        <table className="w-full"><tbody>
+                          <ServerField label="নাম (বাংলা)" value={data.nameBangla} />
+                          <ServerField label="নাম (ইংরেজি)" value={data.name} />
+                          <ServerField label="জন্ম তারিখ" value={data.dob ? new Date(data.dob).toLocaleDateString('en-GB') : ''} />
+                          <ServerField label="পিতার নাম" value={data.fatherName} />
+                          <ServerField label="মাতার নাম" value={data.motherName} />
+                        </tbody></table>
+
+                        <SectionHeader title="অন্যান্য তথ্য" />
+                        <table className="w-full"><tbody>
+                           <ServerField label="লিঙ্গ" value={data.gender} />
+                           <ServerField label="রক্তের গ্রুপ" value={data.bloodGroup} />
+                        </tbody></table>
                     </div>
                 </main>
+
+                <div className="mt-4">
+                  <SectionHeader title="বর্তমান ঠিকানা" />
+                  <p className="p-2 text-sm">{data.presentAddress}</p>
+                  
+                  <SectionHeader title="স্থায়ী ঠিকানা" />
+                  <p className="p-2 text-sm">{data.permanentAddress}</p>
+                </div>
+
                 <footer className="text-center mt-6">
+                    <p className="text-xs text-gray-500">উপরে প্রদর্শিত তথ্য সমূহ জাতীয় পরিচয়পত্র সংশ্লিষ্ট, ভোটার তালিকার সাথে সরাসরি সম্পর্কযুক্ত নয়।</p>
                     <p className="text-xs text-red-600">This is a Software Generated Report From Bangladesh Election Commission, Signature & Seal Aren't Required.</p>
                 </footer>
             </CardContent>

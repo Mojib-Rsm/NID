@@ -15,13 +15,14 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { DatePicker } from "./ui/date-picker"
-import { User, Calendar, MapPin, Fingerprint, Image as ImageIcon, PenSquare, Save, FolderOpen, Download } from "lucide-react"
+import { User, Calendar, MapPin, Fingerprint, Image as ImageIcon, PenSquare, Save, FolderOpen, Download, Hash, Home, Map } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Dispatch, SetStateAction } from "react"
 import React from "react"
 
 export const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  nameBangla: z.string().optional(),
   fatherName: z.string().min(2, { message: "Name must be at least 2 characters." }),
   motherName: z.string().min(2, { message: "Name must be at least 2 characters." }),
   dob: z.date().optional(),
@@ -29,6 +30,14 @@ export const formSchema = z.object({
   nidNumber: z.string().regex(/^\d{10}$|^\d{13}$|^\d{17}$/, { message: "Enter a valid 10, 13, or 17 digit NID number." }),
   photo: z.string().optional(), // Base64 string
   signature: z.string().optional(), // Base64 string
+  pin: z.string().optional(),
+  voterArea: z.string().optional(),
+  birthPlace: z.string().optional(),
+  spouseName: z.string().optional(),
+  gender: z.string().optional(),
+  bloodGroup: z.string().optional(),
+  presentAddress: z.string().optional(),
+  permanentAddress: z.string().optional(),
 })
 
 export type FormSchemaType = z.infer<typeof formSchema>
@@ -71,19 +80,34 @@ export function IdentityForm({ onDataChange, onGeneratePdf, onSave, onLoad, form
       <CardContent>
         <Form {...form}>
           <form className="space-y-6">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4" />Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., John Doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4" />Name (English)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., John Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="nameBangla"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4" />Name (Bangla)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., জন ডো" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
@@ -112,23 +136,79 @@ export function IdentityForm({ onDataChange, onGeneratePdf, onSave, onLoad, form
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="dob"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel className="flex items-center"><Calendar className="mr-2 h-4 w-4" />Date of Birth</FormLabel>
-                  <DatePicker date={field.value} setDate={field.onChange} />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+             <FormField
+                control={form.control}
+                name="spouseName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4" />Spouse's Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Jane Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="dob"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel className="flex items-center"><Calendar className="mr-2 h-4 w-4" />Date of Birth</FormLabel>
+                    <DatePicker date={field.value} setDate={field.onChange} />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="birthPlace"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4" />Birth Place</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Dhaka" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4" />Gender</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Male" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="bloodGroup"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4" />Blood Group</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., O+" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+            </div>
             <FormField
               control={form.control}
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4" />Address</FormLabel>
+                  <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4" />Simple Address (for NID)</FormLabel>
                   <FormControl>
                     <Textarea placeholder="123 Main St, Anytown..." {...field} />
                   </FormControl>
@@ -138,17 +218,71 @@ export function IdentityForm({ onDataChange, onGeneratePdf, onSave, onLoad, form
             />
             <FormField
               control={form.control}
-              name="nidNumber"
+              name="presentAddress"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center"><Fingerprint className="mr-2 h-4 w-4" />NID Number</FormLabel>
+                  <FormLabel className="flex items-center"><Home className="mr-2 h-4 w-4" />Present Address (for Server Copy)</FormLabel>
                   <FormControl>
-                    <Input placeholder="1234567890" {...field} />
+                    <Textarea placeholder="Present Address details..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="permanentAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center"><Map className="mr-2 h-4 w-4" />Permanent Address (for Server Copy)</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Permanent Address details..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="nidNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><Fingerprint className="mr-2 h-4 w-4" />NID Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="1234567890" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="pin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><Hash className="mr-2 h-4 w-4" />PIN</FormLabel>
+                    <FormControl>
+                      <Input placeholder="1234567890123" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+             <FormField
+                control={form.control}
+                name="voterArea"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4" />Voter Area</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Dhaka" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}

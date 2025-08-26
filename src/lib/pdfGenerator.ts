@@ -97,7 +97,7 @@ const addBackPage = (doc: jsPDF, data: FormSchemaType) => {
     doc.setFont('helvetica', 'bold');
     doc.text('Address:', 15, 20);
     doc.setFont('helvetica', 'normal');
-    const addressLines = doc.splitTextToSize(data.address, cardWidth - 30);
+    const addressLines = doc.splitTextToSize(data.address || "", cardWidth - 30);
     doc.text(addressLines, 15, 30);
 
     doc.setFontSize(12);
@@ -121,52 +121,133 @@ const addBackPage = (doc: jsPDF, data: FormSchemaType) => {
     doc.text('This card is the property of the government. If found, please return to the nearest police station.', cardWidth / 2, 148, { align: 'center' });
 };
 
-const addServerCopy = (doc: jsPDF, data: FormSchemaType) => {
-    const pageWidth = 242.6;
-    const pageHeight = 300; // Taller than a standard card
+const addServerCopy = async (doc: jsPDF, data: FormSchemaType) => {
+    const pageWidth = 595.28; // A4 width in points
+    const pageHeight = 841.89; // A4 height in points
     doc.addPage([pageWidth, pageHeight]);
+    doc.setFont('helvetica', 'normal');
+    
+    // Helper to fetch and convert image to data URL
+    const getImageDataUrl = async (path: string) => {
+        const response = await fetch(path);
+        const blob = await response.blob();
+        return new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    };
+    
+    try {
+        const govtLogo = await getImageDataUrl('/bd_govt.png');
+        const ecLogo = await getImageDataUrl('/election-commission-logo.png');
+        
+        doc.addImage(govtLogo, 'PNG', 40, 40, 50, 50);
+    } catch (e) {
+        console.error("Could not load logo images", e);
+    }
 
-    // Simple white background with dashed border
-    doc.setDrawColor(150, 150, 150);
-    doc.setLineDash([5, 5], 0);
-    doc.rect(5, 5, pageWidth - 10, pageHeight - 10, 'S');
-    doc.setLineDash([], 0);
-
-    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
+    doc.text('Bangladesh Election Commission', pageWidth / 2, 60, { align: 'center' });
     doc.setFontSize(14);
-    doc.text('Server Copy', pageWidth / 2, 25, { align: 'center' });
+    doc.text('National Identity Registration Wing (NIDW)', pageWidth / 2, 80, { align: 'center' });
 
     if (data.photo) {
-        doc.addImage(data.photo, 'JPEG', pageWidth / 2 - 30, 40, 60, 75);
+        doc.addImage(data.photo, 'JPEG', 40, 120, 100, 125);
     }
-    
-    const fields = [
-      { label: 'Name', value: data.name },
-      { label: "Father's Name", value: data.fatherName },
-      { label: "Mother's Name", value: data.motherName },
-      { label: 'Date of Birth', value: data.dob ? new Date(data.dob).toLocaleDateString('en-GB') : '' },
-      { label: 'NID Number', value: data.nidNumber, font: 'courier' },
-      { label: 'Address', value: data.address },
-    ];
+     if (data.nidNumber) {
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=Name: ${data.name}%0ANID: ${data.nidNumber}%0ADOB: ${data.dob ? new Date(data.dob).toLocaleDateString('en-CA') : ''}`;
+        try {
+            const qrCodeData = await getImageDataUrl(qrUrl);
+            doc.addImage(qrCodeData, 'PNG', 50, 255, 80, 80);
+        } catch(e) {
+             console.error("Could not load QR code image", e);
+        }
+    }
 
-    let yPos = 135;
-    doc.setFontSize(10);
-    fields.forEach(field => {
+
+    const tableStartY = 120;
+    const tableStartX = 160;
+    const colWidths = [180, 240];
+
+    const addSection = (title: string, tableData: (string|string[])[][], startY: number): number => {
+        doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
-        doc.text(field.label + ':', 20, yPos);
-        doc.setFont('helvetica', 'normal');
-        if (field.font === 'courier') doc.setFont('courier', 'bold');
-        doc.text(field.value || '', 100, yPos);
-        yPos += 18;
-    });
+        doc.setFillColor(220, 240, 255);
+        doc.rect(tableStartX, startY - 1, (pageWidth - tableStartX - 40), 20, 'F');
+        doc.text(title, tableStartX + 10, startY + 14);
 
-    if (data.signature) {
-        doc.addImage(data.signature, 'PNG', pageWidth/2 - 25, yPos + 5, 50, 25, undefined, 'FAST');
-    }
-    doc.line(pageWidth/2 - 30, yPos + 35, pageWidth/2 + 30, yPos + 35);
-    doc.setFontSize(8);
-    doc.text('Signature', pageWidth/2, yPos + 42, {align: 'center'});
+        (doc as any).autoTable({
+            startY: startY + 22,
+            head: [],
+            body: tableData,
+            theme: 'grid',
+            tableWidth: 'wrap',
+            margin: { left: tableStartX },
+            styles: {
+                font: 'helvetica',
+                fontSize: 10,
+                cellPadding: 4,
+            },
+            columnStyles: {
+                0: { cellWidth: colWidths[0], fontStyle: 'bold' },
+                1: { cellWidth: colWidths[1] },
+            }
+        });
+        return (doc as any).lastAutoTable.finalY + 10;
+    };
+    
+    let currentY = tableStartY;
+
+    currentY = addSection('জাতীয় পরিচিতি তথ্য', [
+        ['জাতীয় পরিচয় পত্র নম্বর', data.nidNumber || ''],
+        ['পিন', data.pin || ''],
+        ['ভোটার এলাকা', data.voterArea || ''],
+        ['জন্মস্থান', data.birthPlace || ''],
+        ['স্বামী/স্ত্রীর নাম', data.spouseName || ''],
+    ], currentY);
+
+    currentY = addSection('ব্যক্তিগত তথ্য', [
+        ['নাম (বাংলা)', data.nameBangla || ''],
+        ['নাম (ইংরেজি)', data.name || ''],
+        ['জন্ম তারিখ', data.dob ? new Date(data.dob).toLocaleDateString('en-GB') : ''],
+        ['পিতার নাম', data.fatherName || ''],
+        ['মাতার নাম', data.motherName || ''],
+    ], currentY);
+
+    currentY = addSection('অন্যান্য তথ্য', [
+        ['লিঙ্গ', data.gender || ''],
+        ['রক্তের গ্রুপ', data.bloodGroup || ''],
+    ], currentY);
+    
+    // Addresses below tables
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setFillColor(220, 240, 255);
+    doc.rect(40, currentY -1, (pageWidth - 80), 20, 'F');
+    doc.text("বর্তমান ঠিকানা", 50, currentY + 14);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(data.presentAddress || '', 45, currentY + 40, { maxWidth: pageWidth - 90 });
+    currentY += 60;
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setFillColor(220, 240, 255);
+    doc.rect(40, currentY -1, (pageWidth - 80), 20, 'F');
+    doc.text("স্থায়ী ঠিকানা", 50, currentY + 14);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(data.permanentAddress || '', 45, currentY + 40, { maxWidth: pageWidth - 90 });
+    currentY += 60;
+    
+
+    doc.setFontSize(9);
+    doc.text('উপরে প্রদর্শিত তথ্য সমূহ জাতীয় পরিচয়পত্র সংশ্লিষ্ট, ভোটার তালিকার সাথে সরাসরি সম্পর্কযুক্ত নয়।', pageWidth / 2, pageHeight - 40, { align: 'center' });
+    doc.setTextColor(200, 0, 0);
+    doc.text("This is a Software Generated Report From Bangladesh Election Commission, Signature & Seal Aren't Required.", pageWidth / 2, pageHeight - 25, { align: 'center' });
 }
 
 const addSignatureCard = (doc: jsPDF, data: FormSchemaType) => {
@@ -200,22 +281,26 @@ export const generatePdf = async (data: FormSchemaType, cardType: CardType) => {
   }
   
   const doc = new jsPDF({
-    orientation: 'landscape',
+    orientation: 'portrait',
     unit: 'pt',
-    format: [242.6, 153],
+    format: 'a4',
   });
   doc.deletePage(1); // remove default page
 
   switch(cardType) {
     case 'nid':
-      addFrontPage(doc, data);
-      addBackPage(doc, data);
-      break;
+       doc.addPage([242.6, 153]); // Go back to landscape card
+       addFrontPage(doc, data);
+       addBackPage(doc, data);
+       doc.deletePage(1); // remove the extra blank page
+       break;
     case 'server':
-      addServerCopy(doc, data);
+      await addServerCopy(doc, data);
       break;
     case 'signature':
+      doc.addPage([242.6, 153]);
       addSignatureCard(doc, data);
+      doc.deletePage(1);
       break;
   }
   
