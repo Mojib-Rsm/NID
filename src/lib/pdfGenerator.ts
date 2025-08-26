@@ -65,7 +65,7 @@ const addFrontPage = (doc: jsPDF, data: FormSchemaType) => {
     doc.setFont('helvetica', 'bold');
     doc.text(field.label + ':', 85, yPos);
     doc.setFont('helvetica', 'normal');
-    doc.text(field.value, 140, yPos);
+    doc.text(field.value || '', 140, yPos);
     yPos += 15;
   });
 
