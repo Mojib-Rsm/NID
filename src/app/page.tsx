@@ -9,7 +9,6 @@ import { generatePdf } from "@/lib/pdfGenerator";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Sun, Moon, Sparkles, Loader2 } from "lucide-react";
-import * as z from "zod";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { extractIdData } from "@/ai/flows/extract-id-data-flow";
@@ -64,17 +63,28 @@ export default function Home() {
       const savedData = localStorage.getItem("identityForgeData");
       if (savedData) {
         const parsedData = JSON.parse(savedData);
-        // Zod parse to ensure data integrity and convert date string back to Date object
-        const validatedData = formSchema.extend({
-          dob: z.string().optional().transform(val => val ? new Date(val) : undefined)
-        }).parse(parsedData);
+        // Manually convert date string back to Date object
+        if (parsedData.dob && typeof parsedData.dob === 'string') {
+          parsedData.dob = new Date(parsedData.dob);
+        }
+        
+        const validatedData = formSchema.safeParse(parsedData);
 
-        form.reset(validatedData);
-        setData(validatedData);
-        toast({
-          title: "Success",
-          description: "Your data has been loaded.",
-        });
+        if (validatedData.success) {
+            form.reset(validatedData.data);
+            setData(validatedData.data);
+            toast({
+              title: "Success",
+              description: "Your data has been loaded.",
+            });
+        } else {
+             toast({
+                variant: "destructive",
+                title: "Validation Error",
+                description: "Loaded data is invalid. Please check the console for details.",
+             });
+             console.error(validatedData.error);
+        }
       } else {
         toast({
           title: "Not Found",
@@ -121,16 +131,18 @@ export default function Home() {
         startExtracting(async () => {
           try {
             const extractedData = await extractIdData({ photoDataUri: dataUri });
-            form.reset({
+            const newDob = new Date(extractedData.dob);
+            const updatedData = {
               ...form.getValues(),
               name: extractedData.name,
               fatherName: extractedData.fatherName,
               motherName: extractedData.motherName,
               nidNumber: extractedData.nidNumber,
               address: extractedData.address,
-              dob: new Date(extractedData.dob),
-            });
-            setData(form.getValues())
+              dob: newDob,
+            };
+            form.reset(updatedData);
+            setData(updatedData);
             toast({
               title: "Data Extracted",
               description: "The information from the ID card has been filled into the form.",
