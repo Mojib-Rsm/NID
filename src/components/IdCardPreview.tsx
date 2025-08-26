@@ -97,8 +97,8 @@ const NIDCardFront = ({ data }: { data: FormSchemaType }) => (
 )
   
 const NIDCardBack = ({ data }: { data: FormSchemaType }) => (
-    <Card className="font-sans shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 bg-white">
-        <CardContent className="aspect-[85.6/54] p-2 text-black flex flex-col justify-between relative overflow-hidden">
+    <Card className="font-sans shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+        <CardContent className="aspect-[85.6/54] p-2 text-black flex flex-col justify-between relative overflow-hidden bg-white">
             <div>
                 <p className="text-[7px] text-center leading-tight">
                     এই কার্ডটি গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের সম্পত্তি। কার্ডটি ব্যবহারকারী ব্যতীত অন্য কোথাও পাওয়া গেলে নিকটস্থ পোস্ট অফিসে জমা দেবার জন্য অনুরোধ করা হলো।

@@ -203,7 +203,7 @@ const addFrontPage = async (doc: jsPDF, data: FormSchemaType) => {
     doc.setTextColor(0, 0, 0);
     doc.text('Date of Birth:', xPosLabel, yPosDetails);
     doc.setTextColor(255, 0, 0);
-    const dob = data.dob ? format(data.dob, 'dd MMM yyyy') : '';
+    const dob = data.dob ? format(new Date(data.dob), 'dd MMM yyyy') : '';
     doc.text(dob, xPosValue + mmToPt(7), yPosDetails);
     yPosDetails += yIncrement;
 
@@ -267,7 +267,8 @@ const addBackPage = async (doc: jsPDF, data: FormSchemaType) => {
     
     doc.text('প্রদানের তারিখ:', mmToPt(65), bottomY + mmToPt(5));
     doc.setFont('helvetica', 'normal');
-    doc.text(data.issueDate ? new Date(data.issueDate).toLocaleDateString('en-GB') : '', mmToPt(85), bottomY + mmToPt(5), { align: 'right'});
+    const issueDate = data.issueDate ? format(new Date(data.issueDate), 'dd/MM/yyyy') : '';
+    doc.text(issueDate, mmToPt(85), bottomY + mmToPt(5), { align: 'right'});
 
     // Barcode
     const barcodeY = cardHeight - mmToPt(7);
