@@ -1,6 +1,8 @@
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import type { FormSchemaType } from '@/components/IdentityForm';
+import { SolaimanLipi } from './SolaimanLipi';
+import font from 'file-loader?name=static/fonts/[name].[ext]!./SolaimanLipi.ttf';
 
 type CardType = "nid" | "server" | "signature";
 
@@ -11,6 +13,11 @@ const emblemSvg = `
   <path d="M50,5 L61.8,38.2 L95.1,38.2 L68.6,61.8 L79.4,95 L50,73.6 L20.6,95 L31.4,61.8 L4.9,38.2 L38.2,38.2 Z" fill="#4A5568"/>
 </svg>`;
 
+const addBanglaFont = (doc: jsPDF) => {
+    doc.addFileToVFS('SolaimanLipi-normal.ttf', SolaimanLipi);
+    doc.addFont('SolaimanLipi-normal.ttf', 'SolaimanLipi', 'normal');
+    doc.setFont('SolaimanLipi');
+};
 
 const addFrontPage = (doc: jsPDF, data: FormSchemaType) => {
   // Card dimensions (standard ID card size: 85.6mm x 53.98mm) converted to points (1mm = 2.83465 pt)
@@ -96,9 +103,11 @@ const addBackPage = (doc: jsPDF, data: FormSchemaType) => {
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text('Address:', 15, 20);
-    doc.setFont('helvetica', 'normal');
+    addBanglaFont(doc);
+    doc.setFont('SolaimanLipi', 'normal');
     const addressLines = doc.splitTextToSize(data.address || "", cardWidth - 30);
     doc.text(addressLines, 15, 30);
+    doc.setFont('helvetica', 'normal');
 
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
@@ -125,7 +134,8 @@ const addServerCopy = async (doc: jsPDF, data: FormSchemaType) => {
     const pageWidth = 595.28; // A4 width in points
     const pageHeight = 841.89; // A4 height in points
     doc.addPage([pageWidth, pageHeight]);
-    doc.setFont('helvetica', 'normal');
+    addBanglaFont(doc);
+    doc.setFont('SolaimanLipi', 'normal');
     
     // Helper to fetch and convert image to data URL
     const getImageDataUrl = async (path: string) => {
@@ -172,7 +182,7 @@ const addServerCopy = async (doc: jsPDF, data: FormSchemaType) => {
 
     const addSection = (title: string, tableData: (string|string[])[][], startY: number): number => {
         doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
+        doc.setFont('SolaimanLipi', 'normal');
         doc.setFillColor(220, 240, 255);
         doc.rect(tableStartX, startY - 1, (pageWidth - tableStartX - 40), 20, 'F');
         doc.text(title, tableStartX + 10, startY + 14);
@@ -185,12 +195,12 @@ const addServerCopy = async (doc: jsPDF, data: FormSchemaType) => {
             tableWidth: 'wrap',
             margin: { left: tableStartX },
             styles: {
-                font: 'helvetica',
+                font: 'SolaimanLipi',
                 fontSize: 10,
                 cellPadding: 4,
             },
             columnStyles: {
-                0: { cellWidth: colWidths[0], fontStyle: 'bold' },
+                0: { cellWidth: colWidths[0], fontStyle: 'normal' },
                 1: { cellWidth: colWidths[1] },
             }
         });
@@ -223,27 +233,26 @@ const addServerCopy = async (doc: jsPDF, data: FormSchemaType) => {
     
     // Addresses below tables
     doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('SolaimanLipi', 'normal');
     doc.setFillColor(220, 240, 255);
     doc.rect(40, currentY -1, (pageWidth - 80), 20, 'F');
     doc.text("বর্তমান ঠিকানা", 50, currentY + 14);
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
     doc.text(data.presentAddress || '', 45, currentY + 40, { maxWidth: pageWidth - 90 });
     currentY += 60;
     
     doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('SolaimanLipi', 'normal');
     doc.setFillColor(220, 240, 255);
     doc.rect(40, currentY -1, (pageWidth - 80), 20, 'F');
     doc.text("স্থায়ী ঠিকানা", 50, currentY + 14);
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
     doc.text(data.permanentAddress || '', 45, currentY + 40, { maxWidth: pageWidth - 90 });
     currentY += 60;
     
 
     doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
     doc.text('উপরে প্রদর্শিত তথ্য সমূহ জাতীয় পরিচয়পত্র সংশ্লিষ্ট, ভোটার তালিকার সাথে সরাসরি সম্পর্কযুক্ত নয়।', pageWidth / 2, pageHeight - 40, { align: 'center' });
     doc.setTextColor(200, 0, 0);
     doc.text("This is a Software Generated Report From Bangladesh Election Commission, Signature & Seal Aren't Required.", pageWidth / 2, pageHeight - 25, { align: 'center' });
@@ -261,7 +270,8 @@ const addSignatureCard = (doc: jsPDF, data: FormSchemaType) => {
 
   doc.setTextColor(0,0,0);
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
+  addBanglaFont(doc);
+  doc.setFont('SolaimanLipi', 'normal');
   doc.text(data.name, cardWidth/2, 50, {align: 'center'});
 
   if (data.signature) {
