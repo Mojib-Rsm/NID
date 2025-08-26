@@ -21,12 +21,12 @@ import type { Dispatch, SetStateAction } from "react"
 import React from "react"
 
 export const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }).default(""),
-  fatherName: z.string().min(2, { message: "Name must be at least 2 characters." }).default(""),
-  motherName: z.string().min(2, { message: "Name must be at least 2 characters." }).default(""),
+  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  fatherName: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  motherName: z.string().min(2, { message: "Name must be at least 2 characters." }),
   dob: z.date().optional(),
-  address: z.string().min(10, { message: "Address must be at least 10 characters." }).default(""),
-  nidNumber: z.string().regex(/^\d{10}$|^\d{13}$|^\d{17}$/, { message: "Enter a valid 10, 13, or 17 digit NID number." }).default(""),
+  address: z.string().min(10, { message: "Address must be at least 10 characters." }),
+  nidNumber: z.string().regex(/^\d{10}$|^\d{13}$|^\d{17}$/, { message: "Enter a valid 10, 13, or 17 digit NID number." }),
   photo: z.string().optional(), // Base64 string
   signature: z.string().optional(), // Base64 string
 })

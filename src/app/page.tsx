@@ -9,8 +9,20 @@ import { generatePdf } from "@/lib/pdfGenerator";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Sun, Moon } from "lucide-react";
+import * as z from "zod";
 
-const defaultValues = formSchema.parse({});
+
+const defaultValues: FormSchemaType = {
+  name: "",
+  fatherName: "",
+  motherName: "",
+  address: "",
+  nidNumber: "",
+  dob: undefined,
+  photo: undefined,
+  signature: undefined,
+};
+
 
 export default function Home() {
   const [data, setData] = useState<FormSchemaType>(defaultValues);
