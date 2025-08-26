@@ -25,7 +25,7 @@ const Barcode = () => {
     }
     
     return (
-        <div className="flex items-end gap-px h-12 w-full overflow-hidden px-2">
+        <div className="flex items-end gap-px h-full w-full overflow-hidden">
             {bars.map((bar, i) => (
                 <div key={i} className="bg-black" style={{width: `${bar.width}px`, height: `${bar.height}%`}}></div>
             ))}
@@ -47,49 +47,72 @@ const QrCode = ({ data }: { data: FormSchemaType }) => {
 const NIDCardFront = ({ data }: { data: FormSchemaType }) => (
     <Card className="font-sans shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
       <CardContent className="p-0">
-        <div className="bg-white aspect-[85.6/54] w-full border relative overflow-hidden" style={{ backgroundImage: "url('/nid_bg.svg')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
-           {/* Header */}
-           <div className="h-[22%] bg-green-700/95 flex items-center justify-start p-2.5 gap-2">
-              <Image src="/bd_govt.png" alt="Bangladesh Govt Logo" width={40} height={40} className="w-10 h-10 object-contain" data-ai-hint="emblem logo" />
-              <div className="text-center text-white">
-                  <p className="text-[8px] font-bold">গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</p>
-                  <p className="text-[7px] -mt-0.5">Government of the People's Republic of Bangladesh</p>
-              </div>
-           </div>
-  
-           <main className="mt-1 grid grid-cols-12 gap-x-2 px-2.5">
-            <div className="col-span-4">
-                {data.photo ? (
-                  <Image src={data.photo} alt="User photo" width={100} height={125} className="w-full h-auto aspect-[4/5] object-cover bg-gray-200 mt-1 border-2 border-white shadow-md" data-ai-hint="person portrait" />
-                ) : (
-                  <div className="w-full aspect-[4/5] bg-gray-300 flex items-center justify-center mt-1 border-2 border-white shadow-md">
-                      <p className="text-xs text-gray-500">Photo</p>
-                  </div>
-                )}
-                 <div className="mt-2 h-8 flex items-center justify-center">
-                   {data.signature ? (
-                       <Image src={data.signature} alt="User signature" width={100} height={30} className="w-full h-full object-contain mix-blend-darken" data-ai-hint="signature" />
-                   ) : (
-                       <div className="w-24 h-6 bg-gray-300/50 rounded-md" />
-                   )}
+        <div className="bg-white aspect-[85.6/54] w-full border relative overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="text-center pt-2 px-2">
+                <div className="flex items-center justify-center gap-2">
+                    <Image src="/bd_govt.png" alt="Bangladesh Govt Logo" width={32} height={32} className="w-8 h-8 object-contain" data-ai-hint="emblem logo" />
+                    <div>
+                        <p className="text-[10px] font-bold text-green-700">গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</p>
+                        <p className="text-[7px] -mt-0.5 text-green-700">Government of the People's Republic of Bangladesh</p>
+                    </div>
                 </div>
+                <hr className="border-t-[0.5px] border-green-700 my-1" />
+                <p className="text-[9px] font-bold text-red-600">National ID Card / <span className="text-[11px]">জাতীয় পরিচয় পত্র</span></p>
+                <hr className="border-t-[0.5px] border-green-700 mt-1" />
             </div>
-            <div className="col-span-8 space-y-0.5 text-black pt-1">
-               <h2 className="text-lg font-bold text-red-600 leading-tight">জাতীয় পরিচয়পত্র</h2>
-               <h3 className="text-[10px] font-bold -mt-1 leading-tight">NATIONAL IDENTITY CARD</h3>
-  
-               <p className="text-[10px] font-bold pt-2">{data.nameBangla}</p>
-               <p className="text-[9px] font-semibold">{data.name}</p>
-               <p className="text-[9px]"><span className="font-semibold">Father:</span> {data.fatherName}</p>
-               <p className="text-[9px]"><span className="font-semibold">Mother:</span> {data.motherName}</p>
-               <div className="flex items-center gap-4">
-                  <p className="text-[9px]"><span className="font-semibold">Date of Birth:</span> {data.dob ? new Date(data.dob).toLocaleDateString('en-GB') : ''}</p>
-               </div>
-               <p className="text-[10px] font-bold text-red-600 pt-1">ID NO: {data.nidNumber}</p>
+
+            {/* Background Watermark */}
+            <div className="absolute inset-0 flex items-center justify-center z-0">
+                <Image src="/bd_govt.png" alt="Watermark" width={100} height={100} className="w-2/5 h-auto object-contain opacity-10" data-ai-hint="emblem logo" />
             </div>
-           </main>
-           
-           <div className="absolute bottom-0 left-0 w-full h-4 bg-red-600" style={{ backgroundImage: "url('/wave.svg')", backgroundSize: 'cover' }}></div>
+
+            {/* Main content */}
+            <main className="flex-1 grid grid-cols-12 gap-x-2 px-2.5 z-10 mt-2">
+                <div className="col-span-4 flex flex-col items-center">
+                    {data.photo ? (
+                        <Image src={data.photo} alt="User photo" width={100} height={125} className="w-full h-auto aspect-[4/5] object-cover bg-gray-200 border-2 border-gray-300" data-ai-hint="person portrait" />
+                    ) : (
+                        <div className="w-full aspect-[4/5] bg-gray-300 flex items-center justify-center border-2 border-gray-300">
+                            <p className="text-xs text-gray-500">Photo</p>
+                        </div>
+                    )}
+                    <div className="mt-1 h-6 flex items-center justify-center w-full">
+                        {data.signature ? (
+                           <Image src={data.signature} alt="User signature" width={80} height={20} className="w-full h-full object-contain mix-blend-darken" data-ai-hint="signature" />
+                        ) : (
+                           <div className="w-20 h-5 bg-gray-300/50 rounded-sm" />
+                        )}
+                    </div>
+                     <p className="text-[8px] border-t border-black w-20 text-center">স্বাক্ষর</p>
+                </div>
+                <div className="col-span-8 text-black pt-1 text-[9px] font-semibold">
+                    <div className="grid grid-cols-5 items-center">
+                        <p className="col-span-1">নাম:</p>
+                        <p className="col-span-4">{data.nameBangla}</p>
+                    </div>
+                     <div className="grid grid-cols-5 items-center mt-0.5">
+                        <p className="col-span-1">Name:</p>
+                        <p className="col-span-4">{data.name}</p>
+                    </div>
+                     <div className="grid grid-cols-5 items-center mt-0.5">
+                        <p className="col-span-1">পিতা:</p>
+                        <p className="col-span-4">{data.fatherName}</p>
+                    </div>
+                     <div className="grid grid-cols-5 items-center mt-0.5">
+                        <p className="col-span-1">মাতা:</p>
+                        <p className="col-span-4">{data.motherName}</p>
+                    </div>
+                    <div className="grid grid-cols-5 items-center mt-2">
+                         <p className="col-span-2">Date of Birth:</p>
+                         <p className="col-span-3 text-red-600">{data.dob ? new Date(data.dob).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}</p>
+                    </div>
+                     <div className="grid grid-cols-5 items-center mt-0.5">
+                         <p className="col-span-2">ID NO:</p>
+                         <p className="col-span-3 font-bold text-red-600">{data.nidNumber}</p>
+                    </div>
+                </div>
+            </main>
         </div>
       </CardContent>
     </Card>
@@ -97,38 +120,37 @@ const NIDCardFront = ({ data }: { data: FormSchemaType }) => (
   
 const NIDCardBack = ({ data }: { data: FormSchemaType }) => (
     <Card className="font-sans shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 bg-white">
-      <CardContent className="aspect-[85.6/54] p-2.5 text-black flex flex-col justify-between relative overflow-hidden" style={{ backgroundImage: "url('/nid_bg.svg')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <p className="text-[8px] text-center">
-          এই কার্ডটি গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের সম্পত্তি। কার্ডটি ব্যবহারকারী ব্যতীত অন্য কোথাও পাওয়া গেলে নিকটস্থ পোস্ট অফিসে জমা দেবার জন্য অনুরোধ করা হলো।
-        </p>
-        
-        <div className="border-t border-b border-black py-1 my-1">
-           <p className="text-[9px]"><span className="font-bold">Address:</span> {data.address}</p>
-        </div>
-  
-        <div className="flex justify-between items-start border-b border-black pb-1">
-          <p className="text-[9px]"><span className="font-bold">Blood Group:</span> <span className="text-red-600 font-bold">{data.bloodGroup}</span></p>
-          <p className="text-[9px]"><span className="font-bold">Place of Birth:</span> {data.birthPlace}</p>
-        </div>
-        
-        <div className="flex justify-between items-end mt-1">
-          <div className="w-24 h-24 p-1 border bg-white">
-            <QrCode data={data}/>
-          </div>
-          <div className="text-center">
-              <div className="w-24 h-6" />
-              <p className="text-[8px] font-bold border-t border-black mt-0.5">Authorised Signature</p>
-          </div>
-          <div>
-              <p className="text-[9px]"><span className="font-bold">Date of Issue:</span> {data.issueDate ? new Date(data.issueDate).toLocaleDateString('en-GB') : ''}</p>
-          </div>
-        </div>
-  
-        <div className="absolute bottom-0 left-0 w-full">
-            <Barcode />
-        </div>
-        
-      </CardContent>
+        <CardContent className="aspect-[85.6/54] p-2.5 text-black flex flex-col justify-between relative overflow-hidden">
+            <div>
+                <p className="text-[8px] text-center">
+                    এই কার্ডটি গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের সম্পত্তি। কার্ডটি ব্যবহারকারী ব্যতীত অন্য কোথাও পাওয়া গেলে নিকটস্থ পোস্ট অফিসে জমা দেবার জন্য অনুরোধ করা হলো।
+                </p>
+                <div className="border-y border-black py-1 my-1 px-1">
+                    <p className="text-[9px]"><span className="font-bold">ঠিকানা:</span> {data.address}</p>
+                </div>
+                <div className="flex justify-between items-start border-b border-black pb-1 px-1">
+                    <p className="text-[9px]"><span className="font-bold">রক্তের গ্রুপ:</span> <span className="text-red-600 font-bold">{data.bloodGroup}</span></p>
+                    <p className="text-[9px]"><span className="font-bold">জন্মস্থান:</span> {data.birthPlace}</p>
+                </div>
+            </div>
+
+            <div className="flex justify-between items-end mt-1">
+                <div className="flex-shrink-0">
+                    <QrCode data={data} />
+                </div>
+                <div className="text-center w-full">
+                    <div className="w-24 h-6 mx-auto" />
+                    <p className="text-[8px] font-bold border-t border-black mt-0.5 w-32 mx-auto">প্রদানকারী কর্তৃপক্ষের স্বাক্ষর</p>
+                </div>
+                <div className="text-right flex-shrink-0">
+                    <p className="text-[9px]"><span className="font-bold">প্রদানের তারিখ:</span> {data.issueDate ? new Date(data.issueDate).toLocaleDateString('en-GB') : ''}</p>
+                </div>
+            </div>
+
+            <div className="h-6 w-full mt-1">
+                <Barcode />
+            </div>
+        </CardContent>
     </Card>
 )
 
