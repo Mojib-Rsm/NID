@@ -2,7 +2,6 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import type { FormSchemaType } from '@/components/IdentityForm';
 import { SolaimanLipi } from './SolaimanLipi';
-import font from 'file-loader?name=static/fonts/[name].[ext]!./SolaimanLipi.ttf';
 
 type CardType = "nid" | "server" | "signature";
 
