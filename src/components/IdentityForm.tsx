@@ -26,6 +26,7 @@ export const formSchema = z.object({
   fatherName: z.string().min(2, { message: "Name must be at least 2 characters." }),
   motherName: z.string().min(2, { message: "Name must be at least 2 characters." }),
   dob: z.date().optional(),
+  issueDate: z.date().optional(),
   address: z.string().min(10, { message: "Address must be at least 10 characters." }),
   nidNumber: z.string().regex(/^\d{10}$|^\d{13}$|^\d{17}$/, { message: "Enter a valid 10, 13, or 17 digit NID number." }),
   photo: z.string().optional(), // Base64 string
@@ -164,19 +165,30 @@ export function IdentityForm({ onDataChange, onGeneratePdf, onSave, onLoad, form
               />
               <FormField
                 control={form.control}
-                name="birthPlace"
+                name="issueDate"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4" />Birth Place</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Dhaka" {...field} />
-                    </FormControl>
+                  <FormItem className="flex flex-col">
+                    <FormLabel className="flex items-center"><Calendar className="mr-2 h-4 w-4" />Date of Issue</FormLabel>
+                    <DatePicker date={field.value} setDate={field.onChange} />
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="birthPlace"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center"><MapPin className="mr-2 h-4 w-4" />Birth Place</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Dhaka" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="gender"
@@ -190,20 +202,20 @@ export function IdentityForm({ onDataChange, onGeneratePdf, onSave, onLoad, form
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="bloodGroup"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4" />Blood Group</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., O+" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
             </div>
+            <FormField
+              control={form.control}
+              name="bloodGroup"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center"><User className="mr-2 h-4 w-4" />Blood Group</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., O+" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="address"

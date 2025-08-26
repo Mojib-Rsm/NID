@@ -5,12 +5,99 @@ import { SolaimanLipi } from './SolaimanLipi';
 
 type CardType = "nid" | "server" | "signature";
 
-// A placeholder for a national emblem, as an inline SVG.
-// Note: jspdf's addSvg is experimental. A raster image (PNG) is more reliable.
-const emblemSvg = `
-<svg width="30" height="30" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-  <path d="M50,5 L61.8,38.2 L95.1,38.2 L68.6,61.8 L79.4,95 L50,73.6 L20.6,95 L31.4,61.8 L4.9,38.2 L38.2,38.2 Z" fill="#4A5568"/>
-</svg>`;
+const bdGovtLogo =
+  'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoA2' +
+  'AIAADUBAAAhjgAAdTAADuOAABv3o8+q+wAAERZSURBVHja7Jp7bFzXlcdviGAhQ5KRI0t2JEtOJCm2' +
+  'NEkrlhRLmhTfig3sOI5hO5xJHBN2msAxMGPBwGBjsCChYcCEBCEhBEiABEIgQRIgCRAghIA2aFpL3e' +
+  '2S7u3tbe193+n7/ZD3vfd970P3vN/de19f79azJyMioomA7e0HmpqaqKKiQiUUCpWTyWQk039qampY' +
+  'X1/X3t7e0dHR1dW1tLTU2dl5aGjoxMRECoVCpVJpNBqE41G5XO63q6tLpVJJSUnx8fFkMhmpVOpqgY' +
+  'Bw4MCBnp4esVhszs7O9fX14+PjtbW1TU1NpaWlhUJhsVi8vLw8LS3NzMxMFxcXuVyuzMxMFxcXxWKRy+' +
+  'VqtVqtVkOhUAgEAgE/CIVCodVq3d3dlUrl6empqqpKJBJ5eXm5uLiYm5ubn5+fnZ2dn58vlUrl5eVx' +
+  'uVwqlcrLy6NarY7FYgMDA5lMphKJRCIRsVgMAgGv16tWq8ViEQgEHM4PBAIul8vtdpvNZqVSaWJi' +
+  'Ynh4mMFgwGw2M5lMJpMplUrDwwPDw0Mmk3l2dpaHh4eFhYVcLhcKhVar1W63E4lEIpHo7e1NJBLZ' +
+  'bDalUqnVagUCAYFAQKPRqFar4XAYCoVCIVCGLsdisclkEolELper1Wq1Wk1LSxOLxY6OjiYmJqan' +
+  'p6enpyYmJgYGBrq6urq7u0ulUrvdDgQCbrebyWSSiUQymQwEAra2tgYGBtbX11tbW01NTTU1NdXV' +
+  '1e3t7ePj40NDQ0NDQ7W1tVar1XK5nEwmk0gkEAhEIhF7e/uysjLVajWZTEYikVarNZ1O5+XlSSQS' +
+  'Pp+fn5/f3Nzc1NSEQqEQiUR8Ph+Px3NychKJRPv7+3Nzc3Nzcy6Xq1arc7lcNBpNJBLZ7XZHR0dZ' +
+  'LBbD4fD5fE6nk3g87u7uTiaTiUSifD4Xj8dzcnLs7e1NJhN+v5/P5yORiMFg4HK5nJ2dfTAYDAQC' +
+  'oVCIRCJCoRAIBPz+AAgEHA4HHg98Pp/H43E4HD4fDwQCbrc7mUwikYjdbsdisXg8Ho/HYzAYlEql' +
+  'UqlUKhUKhWq1OplMZrPZbrd7fn5+YmLC4/EMBgNmsxnsg7zH4wkEAgwGA4lEYjQajUZjOh1bW1utra' +
+  '1tbS1HR0etra2tra2tra2trW0MDAw0NDSkUqlMJtPb29vb29va2trQ0NDAwEBHR0dHR0dDQ0Otra2' +
+  'tra2tra2tra2tra2tra2trW0dHR0dHR0dHR0dHR0dHZ2dne3t7Z2dnZ2dne3t7Z2dnZ2dne3t7Z2d' +
+  'nZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dne3t7R0dHR0dHZ2dnZ2dnZ2dnZ2dne3t7R0dHR0dHR0dHd3d3' +
+  'd3d3d3d3d3d3d3d3d3d3R0dHd3d3d3d3d3d3R0dHd3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR' +
+  '0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHd3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR' +
+  '0dHR0dHR3d3d3d3d3d3d3R0dHd3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR' +
+  '3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHR0dHR0dHR' +
+  '0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d' +
+  '3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0d' +
+  'HR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d' +
+  'Bw4MCBnp4esVhszs7O9fX14+PjtbW1TU1NpaWlhUJhsVi8vLw8LS3NzMxMFxcXuVyuzMxMFxcXxWKRy+' +
+  'VqtVqtVkOhUAgEAgE/CIVCodVq3d3dlUrl6empqqpKJBJ5eXm5uLiYm5ubn5+fnZ2dn58vlUrl5eVx' +
+  'uVwqlcrLy6NarY7FYgMDA5lMphKJRCIRsVgMAgGv16tWq8ViEQgEHM4PBAIul8vtdpvNZqVSaWJi' +
+  'Ynh4mMFgwGw2M5lMJpMplUrDwwPDw0Mmk3l2dpaHh4eFhYVcLhcKhVar1W63E4lEIpHo7e1NJBLZ' +
+  'bDalUqnVagUCAYFAQKPRqFar4XAYCoVCIVCGLsdisclkEolELper1Wq1Wk1LSxOLxY6OjiYmJqan' +
+  'p6enpyYmJgYGBrq6urq7u0ulUrvdDgQCbrebyWSSiUQymQwEAra2tgYGBtbX11tbW01NTTU1NdXV' +
+  '1e3t7ePj40NDQ0NDQ7W1tVar1XK5nEwmk0gkEAhEIhF7e/uysjLVajWZTEYikVarNZ1O5+XlSSQS' +
+  'Pp+fn5/f3Nzc1NSEQqEQiUR8Ph+Px3NychKJRPv7+3Nzc3Nzcy6Xq1arc7lcNBpNJBLZ7XZHR0dZ' +
+  'LBbD4fD5fE6nk3g87u7uTiaTiUSifD4Xj8dzcnLs7e1NJhN+v5/P5yORiMFg4HK5nJ2dfTAYDAQC' +
+  'oVCIRCJCoRAIBPz+AAgEHA4HHg98Pp/H43E4HD4fDwQCbrc7mUwikYjdbsdisXg8Ho/HYzAYlEql' +
+  'UqlUKhUKhWq1OplMZrPZbrd7fn5+YmLC4/EMBgNmsxnsg7zH4wkEAgwGA4lEYjQajUZjOh1bW1utra' +
+  '1tbS1HR0etra2tra2tra2trW0MDAw0NDSkUqlMJtPb29vb29va2trQ0NDAwEBHR0dHR0dDQ0Otra2' +
+  'tra2tra2tra2tra2tra2trW0dHR0dHR0dHR0dHR0dHZ2dne3t7Z2dnZ2dne3t7Z2dnZ2dne3t7Z2d' +
+  'nZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dne3t7R0dHR0dHZ2dnZ2dnZ2dnZ2dne3t7R0dHR0dHR0dHd3d3' +
+  'd3d3d3d3d3d3d3d3d3d3R0dHd3d3d3d3d3d3R0dHd3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR' +
+  '0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHd3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR' +
+  '0dHR0dHR3d3d3d3d3d3d3R0dHd3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR' +
+  '3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHR0dHR0dHR' +
+  '0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d' +
+  '3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0d' +
+  'HR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d' +
+  'Bw4MCBnp4esVhszs7O9fX14+PjtbW1TU1NpaWlhUJhsVi8vLw8LS3NzMxMFxcXuVyuzMxMFxcXxWKRy+' +
+  'VqtVqtVkOhUAgEAgE/CIVCodVq3d3dlUrl6empqqpKJBJ5eXm5uLiYm5ubn5+fnZ2dn58vlUrl5eVx' +
+  'uVwqlcrLy6NarY7FYgMDA5lMphKJRCIRsVgMAgGv16tWq8ViEQgEHM4PBAIul8vtdpvNZqVSaWJi' +
+  'Ynh4mMFgwGw2M5lMJpMplUrDwwPDw0Mmk3l2dpaHh4eFhYVcLhcKhVar1W63E4lEIpHo7e1NJBLZ' +
+  'bDalUqnVagUCAYFAQKPRqFar4XAYCoVCIVCGLsdisclkEolELper1Wq1Wk1LSxOLxY6OjiYmJqan' +
+  'p6enpyYmJgYGBrq6urq7u0ulUrvdDgQCbrebyWSSiUQymQwEAra2tgYGBtbX11tbW01NTTU1NdXV' +
+  '1e3t7ePj40NDQ0NDQ7W1tVar1XK5nEwmk0gkEAhEIhF7e/uysjLVajWZTEYikVarNZ1O5+XlSSQS' +
+  'Pp+fn5/f3Nzc1NSEQqEQiUR8Ph+Px3NychKJRPv7+3Nzc3Nzcy6Xq1arc7lcNBpNJBLZ7XZHR0dZ' +
+  'LBbD4fD5fE6nk3g87u7uTiaTiUSifD4Xj8dzcnLs7e1NJhN+v5/P5yORiMFg4HK5nJ2dfTAYDAQC' +
+  'oVCIRCJCoRAIBPz+AAgEHA4HHg98Pp/H43E4HD4fDwQCbrc7mUwikYjdbsdisXg8Ho/HYzAYlEql' +
+  'UqlUKhUKhWq1OplMZrPZbrd7fn5+YmLC4/EMBgNmsxnsg7zH4wkEAgwGA4lEYjQajUZjOh1bW1utra' +
+  '1tbS1HR0etra2tra2tra2trW0MDAw0NDSkUqlMJtPb29vb29va2trQ0NDAwEBHR0dHR0dDQ0Otra2' +
+  'tra2tra2tra2tra2tra2trW0dHR0dHR0dHR0dHR0dHZ2dne3t7Z2dnZ2dne3t7Z2dnZ2dne3t7Z2d' +
+  'nZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dne3t7R0dHR0dHZ2dnZ2dnZ2dnZ2dne3t7R0dHR0dHR0dHd3d3' +
+  'd3d3d3d3d3d3d3d3d3d3R0dHd3d3d3d3d3d3R0dHd3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR' +
+  '0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHd3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR' +
+  '0dHR0dHR3d3d3d3d3d3d3R0dHd3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR' +
+  '3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHR0dHR0dHR' +
+  '0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d' +
+  '3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0d' +
+  'HR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d' +
+  'Bw4MCBnp4esVhszs7O9fX14+PjtbW1TU1NpaWlhUJhsVi8vLw8LS3NzMxMFxcXuVyuzMxMFxcXxWKRy+' +
+  'VqtVqtVkOhUAgEAgE/CIVCodVq3d3dlUrl6empqqpKJBJ5eXm5uLiYm5ubn5+fnZ2dn58vlUrl5eVx' +
+  'uVwqlcrLy6NarY7FYgMDA5lMphKJRCIRsVgMAgGv16tWq8ViEQgEHM4PBAIul8vtdpvNZqVSaWJi' +
+  'Ynh4mMFgwGw2M5lMJpMplUrDwwPDw0Mmk3l2dpaHh4eFhYVcLhcKhVar1W63E4lEIpHo7e1NJBLZ' +
+  'bDalUqnVagUCAYFAQKPRqFar4XAYCoVCIVCGLsdisclkEolELper1Wq1Wk1LSxOLxY6OjiYmJqan' +
+  'p6enpyYmJgYGBrq6urq7u0ulUrvdDgQCbrebyWSSiUQymQwEAra2tgYGBtbX11tbW01NTTU1NdXV' +
+  '1e3t7ePj40NDQ0NDQ7W1tVar1XK5nEwmk0gkEAhEIhF7e/uysjLVajWZTEYikVarNZ1O5+XlSSQS' +
+  'Pp+fn5/f3Nzc1NSEQqEQiUR8Ph+Px3NychKJRPv7+3Nzc3Nzcy6Xq1arc7lcNBpNJBLZ7XZHR0dZ' +
+  'LBbD4fD5fE6nk3g87u7uTiaTiUSifD4Xj8dzcnLs7e1NJhN+v5/P5yORiMFg4HK5nJ2dfTAYDAQC' +
+  'oVCIRCJCoRAIBPz+AAgEHA4HHg98Pp/H43E4HD4fDwQCbrc7mUwikYjdbsdisXg8Ho/HYzAYlEql' +
+  'UqlUKhUKhWq1OplMZrPZbrd7fn5+YmLC4/EMBgNmsxnsg7zH4wkEAgwGA4lEYjQajUZjOh1bW1utra' +
+  '1tbS1HR0etra2tra2tra2trW0MDAw0NDSkUqlMJtPb29vb29va2trQ0NDAwEBHR0dHR0dDQ0Otra2' +
+  'tra2tra2tra2tra2tra2trW0dHR0dHR0dHR0dHR0dHZ2dne3t7Z2dnZ2dne3t7Z2dnZ2dne3t7Z2d' +
+  'nZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dne3t7R0dHR0dHZ2dnZ2dnZ2dnZ2dne3t7R0dHR0dHR0dHd3d3' +
+  'd3d3d3d3d3d3d3d3d3d3R0dHd3d3d3d3d3d3R0dHd3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR' +
+  '0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHd3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR' +
+  '0dHR0dHR3d3d3d3d3d3d3R0dHd3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR' +
+  '3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHR0dHR0dHR' +
+  '0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d' +
+  '3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0d' +
+
+  'HR0dHR0dHR0dHR3d3d3d3d3d3d3R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3d3d3d3d3d3d' +
+  'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' +
+  'AAAAAAAAAAAAAAAAAAAAAAAAAP//AAADgQAAAJI=';
 
 const addBanglaFont = (doc: jsPDF) => {
     doc.addFileToVFS('SolaimanLipi.ttf', SolaimanLipi);
@@ -23,71 +110,64 @@ const addFrontPage = (doc: jsPDF, data: FormSchemaType) => {
   const cardWidth = 242.6;
   const cardHeight = 153;
   
-  // Background
-  doc.setFillColor(232, 240, 254); // #E8F0FE
+  doc.setFillColor(255, 255, 255);
   doc.rect(0, 0, cardWidth, cardHeight, 'F');
   
-  // Header
-  doc.setFillColor(119, 141, 169); // #778DA9
-  doc.rect(0, 0, cardWidth, 25, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
-  doc.text('GOVERNMENT OF PEOPLE\'S REPUBLIC', cardWidth / 2, 12, { align: 'center' });
+  doc.addImage(bdGovtLogo, 'PNG', 195, 2, 40, 40);
+
+  addBanglaFont(doc);
+
+  doc.setTextColor('#006A4E'); // Green
   doc.setFontSize(8);
-  doc.text('National ID Card', cardWidth / 2, 20, { align: 'center' });
+  doc.text('গণপ্রজাতন্ত্রী বাংলাদেশ সরকার', cardWidth/2 - 20, 10, { align: 'center'});
+  doc.setFontSize(7);
+  doc.text('Government of the People\'s Republic of Bangladesh', cardWidth/2 - 20, 17, { align: 'center'});
+  
+  doc.setTextColor('#D4213D'); // Red
+  doc.setFontSize(18);
+  doc.text('জাতীয় পরিচয়পত্র', cardWidth/2 - 20, 30, { align: 'center'});
 
-  // Add emblem placeholder
-  try {
-      doc.addSvg(emblemSvg, 10, 30, 30, 30);
-  } catch(e) {
-      console.error("Could not add SVG to PDF, drawing fallback.", e);
-      doc.setFillColor(74, 85, 104);
-      doc.circle(25, 45, 15, 'F');
-  }
-
+  doc.setTextColor(0,0,0);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('NATIONAL IDENTITY CARD', cardWidth/2 - 20, 40, { align: 'center'});
+  
   // Photo
   if (data.photo) {
     try {
-      doc.addImage(data.photo, 'JPEG', 15, 65, 60, 75);
-      doc.setDrawColor(255, 255, 255);
-      doc.rect(15, 65, 60, 75); // White border around photo
+      doc.addImage(data.photo, 'JPEG', 15, 45, 50, 62);
     } catch (e) {
       console.error("Error adding photo to PDF", e);
     }
   }
 
   // Personal Details
-  doc.setTextColor(0, 0, 0);
+  let yPos = 50;
   doc.setFontSize(9);
-
-  const fields = [
-    { label: 'Name', value: data.name },
-    { label: "Father's Name", value: data.fatherName },
-    { label: "Mother's Name", value: data.motherName },
-    { label: 'Date of Birth', value: data.dob ? new Date(data.dob).toLocaleDateString('en-GB') : '' },
-  ];
   
-  let yPos = 70;
-  fields.forEach(field => {
-    doc.setFont('helvetica', 'bold');
-    doc.text(field.label + ':', 85, yPos);
-    doc.setFont('helvetica', 'normal');
-    doc.text(field.value || '', 140, yPos);
-    yPos += 15;
-  });
+  doc.setFont('SolaimanLipi');
+  doc.text(data.nameBangla || '', 75, yPos);
+  yPos+=10;
+  
+  doc.setFont('helvetica', 'normal');
+  doc.text(data.name || '', 75, yPos);
+  yPos+=10;
+  
+  doc.text('Father: ' + (data.fatherName || ''), 75, yPos);
+  yPos+=10;
+  
+  doc.text('Mother: ' + (data.motherName || ''), 75, yPos);
+  yPos+=10;
 
-  // Signature
-  if (data.signature) {
-    try {
-      doc.addImage(data.signature, 'PNG', 170, 115, 50, 25, undefined, 'FAST');
-      doc.setDrawColor(0,0,0);
-      doc.line(170, 220, 140, 140); // line under signature
-      doc.text('Signature', 185, 145);
-    } catch (e) {
-      console.error("Error adding signature to PDF", e);
-    }
-  }
+  doc.text('Date of Birth: ' + (data.dob ? new Date(data.dob).toLocaleDateString('en-GB') : ''), 75, yPos);
+  yPos+=15;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor('#D4213D');
+  doc.text('ID NO: ' + (data.nidNumber || ''), 75, yPos);
+
+  doc.setFillColor('#006A4E');
+  doc.rect(0, cardHeight - 5, cardWidth, 5, 'F');
 };
 
 const addBackPage = (doc: jsPDF, data: FormSchemaType) => {
@@ -95,37 +175,64 @@ const addBackPage = (doc: jsPDF, data: FormSchemaType) => {
     const cardWidth = 242.6;
     const cardHeight = 153;
 
-    // Background
-    doc.setFillColor(232, 240, 254);
+    doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, cardWidth, cardHeight, 'F');
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Address:', 15, 20);
-    doc.setFont('SolaimanLipi');
-    const addressLines = doc.splitTextToSize(data.address || "", cardWidth - 30);
-    doc.text(addressLines, 15, 30);
-    doc.setFont('helvetica', 'normal');
 
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('NID No:', 15, 80);
-    doc.setFont('courier', 'bold');
-    doc.setTextColor(200, 0, 0); // Red color for NID
-    doc.text(data.nidNumber, 60, 80);
-    doc.setTextColor(0, 0, 0);
+    addBanglaFont(doc);
+    doc.setTextColor(0,0,0);
+    doc.setFontSize(8);
     
+    const topText = 'এই কার্ডটি গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের সম্পত্তি। কার্ডটি ব্যবহারকারী ব্যতীত অন্য কোথাও পাওয়া গেলে নিকটস্থ পোস্ট অফিসে জমা দেবার জন্য অনুরোধ করা হলো।';
+    const topTextLines = doc.splitTextToSize(topText, cardWidth - 20);
+    doc.text(topTextLines, cardWidth/2, 15, { align: 'center' });
+
+    doc.setDrawColor(0,0,0);
+    doc.line(10, 35, cardWidth - 10, 35);
+    
+    doc.setFontSize(9);
+    const addressLine = doc.splitTextToSize(`ঠিকানা: ${data.address || ''}`, cardWidth - 20);
+    doc.text(addressLine, 10, 45);
+    
+    doc.line(10, 60, cardWidth - 10, 60);
+
+    doc.text('রক্তের গ্রুপ / Blood Group:', 10, 70);
+    doc.setTextColor('#D4213D');
+    doc.setFont('helvetica', 'bold');
+    doc.text(data.bloodGroup || '', 110, 70);
+
+    doc.setTextColor(0,0,0);
+    doc.setFont('SolaimanLipi');
+    doc.text('জন্মস্থান:', 140, 70);
+    doc.text(data.birthPlace || '', 175, 70);
+
+    doc.rect(200, 65, 30, 10);
+    doc.text('মূদ্রণ: ০১', 205, 72);
+
+    doc.line(10, 78, cardWidth - 10, 78);
+
+    if (data.signature) {
+      try {
+        doc.addImage(data.signature, 'PNG', 15, 85, 60, 15, undefined, 'FAST');
+      } catch (e) {
+        console.error("Error adding signature to PDF", e);
+      }
+    }
+    doc.line(15, 102, 85, 102);
+    doc.text('প্রদানকারী কর্তৃপক্ষের স্বাক্ষর', 50, 110, {align: 'center'});
+
+    doc.text('প্রদানের তারিখ:', 140, 105);
+    doc.setFont('helvetica', 'normal');
+    doc.text(data.issueDate ? new Date(data.issueDate).toLocaleDateString('en-GB') : '', 190, 105);
+
+
     // Barcode placeholder
     doc.setFillColor(0,0,0);
-    let x = 15;
-    for(let i=0; i<35; i++) {
+    let x = 10;
+    for(let i=0; i<60; i++) {
         let width = Math.random() * 2 + 0.5;
-        doc.rect(x, 100, width, 30, 'F');
+        doc.rect(x, 115, width, 25, 'F');
         x += width + Math.random() * 1.5;
     }
-
-    doc.setFontSize(7);
-    doc.text('This card is the property of the government. If found, please return to the nearest police station.', cardWidth / 2, 148, { align: 'center' });
 };
 
 const addServerCopy = async (doc: jsPDF, data: FormSchemaType) => {
@@ -270,7 +377,7 @@ const addSignatureCard = (doc: jsPDF, data: FormSchemaType) => {
   doc.setTextColor(0,0,0);
   doc.setFontSize(10);
   doc.setFont('SolaimanLipi');
-  doc.text(data.name, cardWidth/2, 50, {align: 'center'});
+  doc.text(data.name || '', cardWidth/2, 50, {align: 'center'});
 
   if (data.signature) {
     doc.addImage(data.signature, 'PNG', cardWidth/2 - 50, 60, 100, 40, undefined, 'FAST');
@@ -297,7 +404,6 @@ export const generatePdf = async (data: FormSchemaType, cardType: CardType) => {
   switch(cardType) {
     case 'nid':
        doc.addPage([242.6, 153]); // Go back to landscape card
-       addBanglaFont(doc);
        addFrontPage(doc, data);
        addBackPage(doc, data);
        doc.deletePage(1); // remove the extra blank page
@@ -316,5 +422,3 @@ export const generatePdf = async (data: FormSchemaType, cardType: CardType) => {
   
   doc.save(`IdentityForge-${cardType}.pdf`);
 };
-
-    

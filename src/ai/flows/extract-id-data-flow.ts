@@ -25,6 +25,7 @@ const ExtractIdDataOutputSchema = z.object({
   fatherName: z.string().describe("The father's full name."),
   motherName: z.string().describe("The mother's full name."),
   dob: z.string().describe("The date of birth in YYYY-MM-DD format."),
+  issueDate: z.string().describe("The date of issue in YYYY-MM-DD format."),
   nidNumber: z.string().describe("The National ID number."),
   address: z.string().describe("The full address, combining all parts of the address fields (present, permanent, etc.) into a single comprehensive string."),
   pin: z.string().describe("The Personal Identification Number (PIN)."),
@@ -55,6 +56,7 @@ You will be provided with an image or a PDF of an ID card or a server copy of on
 - Father's Name
 - Mother's Name
 - Date of Birth (must be in YYYY-MM-DD format)
+- Date of Issue (must be in YYYY-MM-DD format)
 - NID Number
 - PIN
 - Voter Area

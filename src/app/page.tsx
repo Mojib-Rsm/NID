@@ -22,6 +22,7 @@ const defaultValues: FormSchemaType = {
   address: "123 Main St, Anytown, USA",
   nidNumber: "1234567890",
   dob: new Date("1990-01-01"),
+  issueDate: new Date(),
   photo: undefined,
   signature: undefined,
   pin: "1234567890123",
@@ -58,6 +59,7 @@ export default function Home() {
       const dataToSave = {
         ...currentData,
         dob: currentData.dob ? currentData.dob.toISOString() : undefined,
+        issueDate: currentData.issueDate ? currentData.issueDate.toISOString() : undefined,
       };
       localStorage.setItem("identityForgeData", JSON.stringify(dataToSave));
       toast({
@@ -84,6 +86,7 @@ export default function Home() {
             ...defaultValues, // ensure all fields are present
             ...parsedData,
             dob: parsedData.dob ? new Date(parsedData.dob) : new Date(),
+            issueDate: parsedData.issueDate ? new Date(parsedData.issueDate) : new Date(),
         };
 
         const validatedData = formSchema.safeParse(dataToLoad);
@@ -150,10 +153,12 @@ export default function Home() {
           try {
             const extractedData = await extractIdData({ photoDataUri: dataUri });
             const newDob = new Date(extractedData.dob);
+            const newIssueDate = new Date(extractedData.issueDate);
             const updatedData = {
               ...form.getValues(),
               ...extractedData,
               dob: newDob,
+              issueDate: newIssueDate,
             };
             form.reset(updatedData);
             setData(updatedData);
