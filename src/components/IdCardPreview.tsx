@@ -3,16 +3,34 @@
 import { Card, CardContent } from "@/components/ui/card"
 import type { FormSchemaType } from "./IdentityForm"
 import Image from "next/image"
+import React, { useState, useEffect } from 'react';
 
 type CardType = "nid" | "server" | "signature";
 
-const Barcode = () => (
-    <div className="flex items-end gap-px h-12 w-full overflow-hidden">
-        {[...Array(60)].map((_, i) => (
-            <div key={i} className="bg-black" style={{width: `${Math.random() * 2 + 0.5}px`, height: `${Math.random() * 80 + 20}%`}}></div>
-        ))}
-    </div>
-)
+const Barcode = () => {
+    const [bars, setBars] = useState<{ width: number; height: number }[]>([]);
+
+    useEffect(() => {
+        const newBars = [...Array(60)].map(() => ({
+            width: Math.random() * 2 + 0.5,
+            height: Math.random() * 80 + 20,
+        }));
+        setBars(newBars);
+    }, []);
+
+    if (bars.length === 0) {
+        // Render a placeholder or nothing on the server and initial client render
+        return <div className="h-12 w-full bg-gray-200" />;
+    }
+    
+    return (
+        <div className="flex items-end gap-px h-12 w-full overflow-hidden">
+            {bars.map((bar, i) => (
+                <div key={i} className="bg-black" style={{width: `${bar.width}px`, height: `${bar.height}%`}}></div>
+            ))}
+        </div>
+    )
+}
 
 const QrCode = () => (
     <div className="w-24 h-24 p-1 border bg-white">
