@@ -25,7 +25,7 @@ const ExtractIdDataOutputSchema = z.object({
   motherName: z.string().describe("The mother's full name."),
   dob: z.string().describe("The date of birth in YYYY-MM-DD format."),
   nidNumber: z.string().describe("The National ID number."),
-  address: z.string().describe("The full address."),
+  address: z.string().describe("The full address, combining all parts of the address fields (present, permanent, etc.) into a single comprehensive string."),
 });
 export type ExtractIdDataOutput = z.infer<typeof ExtractIdDataOutputSchema>;
 
@@ -37,15 +37,15 @@ const prompt = ai.definePrompt({
   name: 'extractIdDataPrompt',
   input: {schema: ExtractIdDataInputSchema},
   output: {schema: ExtractIdDataOutputSchema},
-  prompt: `You are an expert at extracting information from National ID cards.
+  prompt: `You are an expert at extracting information from National ID cards, especially from Bangladesh.
   
-You will be provided with an image of an ID card. Your task is to extract the following fields and return them in a structured JSON format:
-- Name
+You will be provided with an image of an ID card or a server copy of one. Your task is to extract the following fields and return them in a structured JSON format:
+- Name (extract the English name if available)
 - Father's Name
 - Mother's Name
 - Date of Birth (must be in YYYY-MM-DD format)
 - NID Number
-- Address
+- Address (Combine all available address parts like 'Present Address' and 'Permanent Address' into one single string. Clean it up for readability.)
 
 Analyze the provided image carefully to find all the required information.
 

@@ -14,6 +14,13 @@ const Barcode = () => (
     </div>
 )
 
+const QrCode = () => (
+    <div className="w-24 h-24 p-1 border bg-white">
+        <Image src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://firebase.google.com/" alt="QR Code" width={96} height={96} className="w-full h-full" data-ai-hint="qr code" />
+    </div>
+)
+
+
 const Field = ({ label, value }: { label: string; value: string | undefined }) => (
   <div>
     <p className="text-[8px] font-bold text-gray-500 uppercase tracking-wider">{label}</p>
@@ -82,51 +89,66 @@ const NIDCardBack = ({ data }: { data: FormSchemaType }) => (
   </Card>
 )
 
-const ServerCopy = ({ data }: { data: FormSchemaType }) => (
-  <Card className="font-sans shadow-lg overflow-hidden bg-white">
-     <CardContent className="aspect-[85.6/108] p-4 border-2 border-dashed border-gray-400">
-        <h2 className="text-lg font-bold text-center mb-4">Server Copy</h2>
-        <div className="grid grid-cols-3 gap-x-4 gap-y-2 text-sm">
-           <div className="col-span-1 font-semibold">Name</div>
-           <div className="col-span-2">: {data.name}</div>
-           
-           <div className="col-span-1 font-semibold">Father's Name</div>
-           <div className="col-span-2">: {data.fatherName}</div>
-           
-           <div className="col-span-1 font-semibold">Mother's Name</div>
-           <div className="col-span-2">: {data.motherName}</div>
-
-           <div className="col-span-1 font-semibold">Date of Birth</div>
-           <div className="col-span-2">: {data.dob ? new Date(data.dob).toLocaleDateString('en-GB') : ''}</div>
-
-           <div className="col-span-1 font-semibold">Address</div>
-           <div className="col-span-2 text-xs">: {data.address}</div>
-
-           <div className="col-span-3 my-2 border-t border-dashed"></div>
-
-           <div className="col-span-1 font-semibold">NID Number</div>
-           <div className="col-span-2 font-mono font-bold text-base">: {data.nidNumber}</div>
-
-           <div className="col-span-3 mt-4 flex justify-between items-end">
-              <div>
-                {data.photo ? (
-                  <Image src={data.photo} alt="User photo" width={80} height={100} className="w-20 h-auto aspect-[4/5] object-cover bg-gray-200 rounded-sm border" data-ai-hint="person portrait" />
-                ) : <div className="w-20 aspect-[4/5] bg-gray-200" />}
-              </div>
-              <div>
-                 {data.signature ? (
-                    <Image src={data.signature} alt="User signature" width={100} height={40} className="w-28 h-12 object-contain mix-blend-darken" data-ai-hint="signature" />
-                ) : <div className="w-28 h-12 bg-gray-200/50" />}
-                 <p className="text-xs text-center border-t border-black mt-1">Signature</p>
-              </div>
-           </div>
-           <div className="col-span-3 mt-4">
-              <Barcode />
-           </div>
+const ServerCopy = ({ data }: { data: FormSchemaType }) => {
+    const ServerField = ({ label, value }: { label: string; value: string | undefined | React.ReactNode}) => (
+        <div className="flex border-b border-gray-200 py-1.5">
+            <p className="w-1/3 text-sm text-gray-600">{label}</p>
+            <p className="w-2/3 text-sm font-medium text-black">{value || " "}</p>
         </div>
-     </CardContent>
-  </Card>
-)
+    );
+    
+    return (
+        <Card className="font-sans shadow-lg overflow-hidden bg-white text-black">
+            <CardContent className="p-6">
+                <header className="flex items-center gap-4 mb-4">
+                    <Image src="https://seeklogo.com/images/B/bangladesh-govt-logo-A2C76D6556-seeklogo.com.png" alt="Bangladesh Govt Logo" width={40} height={40} data-ai-hint="emblem logo" />
+                    <div>
+                        <h2 className="text-lg font-bold text-green-800">Bangladesh Election Commission</h2>
+                        <p className="text-sm text-yellow-600 font-semibold">National Identity Registration Wing (NIDW)</p>
+                    </div>
+                </header>
+
+                <main className="grid grid-cols-3 gap-6">
+                    <div className="col-span-1 flex flex-col items-center">
+                        {data.photo ? (
+                            <Image src={data.photo} alt="User photo" width={120} height={150} className="w-full max-w-[120px] aspect-[4/5] object-cover bg-gray-200 rounded-sm border" data-ai-hint="person portrait" />
+                        ) : <div className="w-full max-w-[120px] aspect-[4/5] bg-gray-200" />}
+                        <p className="mt-2 text-sm font-semibold">{data.name}</p>
+                        <div className="mt-4">
+                           <QrCode />
+                        </div>
+                    </div>
+                    <div className="col-span-2">
+                        <div className="bg-cyan-50 border border-cyan-200 px-3 py-1 mb-4">
+                            <h3 className="text-md font-bold text-cyan-800">National Identity Information</h3>
+                        </div>
+                        <ServerField label="National ID No." value={<span className="font-bold text-red-600">{data.nidNumber}</span>} />
+                        
+                        <div className="bg-cyan-50 border border-cyan-200 px-3 py-1 mt-6 mb-4">
+                            <h3 className="text-md font-bold text-cyan-800">Personal Information</h3>
+                        </div>
+                        <ServerField label="Name (English)" value={data.name} />
+                        <ServerField label="Date of Birth" value={data.dob ? new Date(data.dob).toLocaleDateString('en-GB') : ''} />
+                        <ServerField label="Father's Name" value={data.fatherName} />
+                        <ServerField label="Mother's Name" value={data.motherName} />
+                        
+                        <div className="bg-cyan-50 border border-cyan-200 px-3 py-1 mt-6 mb-4">
+                            <h3 className="text-md font-bold text-cyan-800">Address</h3>
+                        </div>
+                        <div className="border-b border-gray-200 py-1.5">
+                            <p className="text-sm text-gray-600">Address</p>
+                            <p className="text-sm font-medium text-black">{data.address || " "}</p>
+                        </div>
+
+                    </div>
+                </main>
+                <footer className="text-center mt-6">
+                    <p className="text-xs text-red-600">This is a Software Generated Report From Bangladesh Election Commission, Signature & Seal Aren't Required.</p>
+                </footer>
+            </CardContent>
+        </Card>
+    )
+}
 
 const SignatureCard = ({ data }: { data: FormSchemaType }) => (
   <Card className="font-sans shadow-lg overflow-hidden bg-white">
