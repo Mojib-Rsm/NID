@@ -1,0 +1,87 @@
+"use client"
+
+import { Card, CardContent } from "@/components/ui/card"
+import type { FormSchemaType } from "./IdentityForm"
+import Image from "next/image"
+
+const Barcode = () => (
+    <div className="flex items-end gap-px h-12 w-full overflow-hidden">
+        {[...Array(60)].map((_, i) => (
+            <div key={i} className="bg-black" style={{width: `${Math.random() * 2 + 0.5}px`, height: `${Math.random() * 80 + 20}%`}}></div>
+        ))}
+    </div>
+)
+
+const Field = ({ label, value }: { label: string; value: string | undefined }) => (
+  <div>
+    <p className="text-[8px] font-bold text-gray-500 uppercase tracking-wider">{label}</p>
+    <p className="text-sm font-semibold text-black -mt-0.5">{value || " "}</p>
+  </div>
+);
+
+export function IdCardPreview({ data }: { data: FormSchemaType }) {
+  return (
+    <div className="w-full space-y-8">
+      <h3 className="text-xl font-semibold text-center text-primary">ID Card Preview</h3>
+      
+      {/* Front Side */}
+      <Card className="font-sans shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+        <CardContent className="p-0">
+          <div className="bg-accent/50 aspect-[85.6/54] border-4 border-white">
+            <header className="bg-primary/80 text-primary-foreground text-center py-2 px-4">
+              <h4 className="text-sm font-bold tracking-wider">GOVERNMENT OF PEOPLE'S REPUBLIC</h4>
+              <p className="text-xs">National ID Card</p>
+            </header>
+            <main className="p-4 grid grid-cols-3 gap-4">
+              <div className="col-span-1 space-y-2">
+                 {data.photo ? (
+                    <Image src={data.photo} alt="User photo" width={100} height={125} className="w-full h-auto aspect-[4/5] object-cover bg-gray-200 rounded-md border-2 border-white" data-ai-hint="person portrait" />
+                  ) : (
+                    <div className="w-full aspect-[4/5] bg-gray-300 rounded-md flex items-center justify-center border-2 border-white">
+                        <p className="text-xs text-gray-500">Photo</p>
+                    </div>
+                  )}
+              </div>
+              <div className="col-span-2 space-y-2.5">
+                <Field label="Name" value={data.name} />
+                <Field label="Father's Name" value={data.fatherName} />
+                <Field label="Mother's Name" value={data.motherName} />
+                <Field label="Date of Birth" value={data.dob ? new Date(data.dob).toLocaleDateString('en-GB') : ''} />
+                
+                <div className="pt-4">
+                    {data.signature ? (
+                        <Image src={data.signature} alt="User signature" width={100} height={40} className="w-32 h-10 object-contain mix-blend-darken" data-ai-hint="signature" />
+                    ) : (
+                        <div className="w-32 h-10 bg-gray-300/50 rounded-md flex items-center justify-center">
+                            <p className="text-[10px] text-gray-500">Signature</p>
+                        </div>
+                    )}
+                     <hr className="border-gray-600 w-32 mt-1" />
+                </div>
+              </div>
+            </main>
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Back Side */}
+       <Card className="font-sans shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+        <CardContent className="p-0">
+           <div className="bg-accent/50 aspect-[85.6/54] p-4 flex flex-col justify-between border-4 border-white">
+                <div>
+                    <Field label="Address" value={data.address} />
+                </div>
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                        <p className="text-sm font-bold text-red-600">ID NO:</p>
+                        <p className="font-mono text-lg font-bold tracking-widest text-red-600">{data.nidNumber}</p>
+                    </div>
+                    <Barcode />
+                    <p className="text-[6px] text-center text-gray-600 pt-2">This card is the property of the government. If found, please return to the nearest police station.</p>
+                </div>
+           </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
