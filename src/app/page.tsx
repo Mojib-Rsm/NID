@@ -44,7 +44,12 @@ export default function Home() {
   const handleSaveToLocal = () => {
     try {
       const currentData = form.getValues();
-      localStorage.setItem("identityForgeData", JSON.stringify(currentData));
+      // Convert Date object to ISO string for consistent storage
+      const dataToSave = {
+        ...currentData,
+        dob: currentData.dob ? currentData.dob.toISOString() : undefined,
+      };
+      localStorage.setItem("identityForgeData", JSON.stringify(dataToSave));
       toast({
         title: "Success",
         description: "Your data has been saved locally.",
@@ -63,12 +68,14 @@ export default function Home() {
       const savedData = localStorage.getItem("identityForgeData");
       if (savedData) {
         const parsedData = JSON.parse(savedData);
-        // Manually convert date string back to Date object
-        if (parsedData.dob && typeof parsedData.dob === 'string') {
-          parsedData.dob = new Date(parsedData.dob);
-        }
         
-        const validatedData = formSchema.safeParse(parsedData);
+        // Ensure dob is a Date object if it exists
+        const dataToLoad = {
+            ...parsedData,
+            dob: parsedData.dob ? new Date(parsedData.dob) : undefined,
+        };
+
+        const validatedData = formSchema.safeParse(dataToLoad);
 
         if (validatedData.success) {
             form.reset(validatedData.data);
@@ -152,7 +159,7 @@ export default function Home() {
             toast({
               variant: "destructive",
               title: "Extraction Failed",
-              description: "Could not extract data from the image. Please try a clearer image.",
+              description: "Could not extract data from the document. Please try a clearer one.",
             });
           }
         });
@@ -206,7 +213,7 @@ export default function Home() {
                  </div>
                  <div className="flex-1 space-y-2">
                    <label htmlFor="image-extract-input" className="text-sm font-medium block">
-                      Extract from Image (AI)
+                      Extract from Document (AI)
                     </label>
                     <Button asChild className="w-full" variant="outline">
                       <label htmlFor="image-extract-input" className="cursor-pointer">
@@ -218,7 +225,7 @@ export default function Home() {
                          Upload and Extract
                       </label>
                     </Button>
-                    <input id="image-extract-input" type="file" accept="image/*" className="sr-only" onChange={handleFileExtract} disabled={isExtracting} />
+                    <input id="image-extract-input" type="file" accept="image/*,application/pdf" className="sr-only" onChange={handleFileExtract} disabled={isExtracting} />
                  </div>
               </CardContent>
             </Card>

@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview An AI flow to extract structured data from an ID card image.
+ * @fileOverview An AI flow to extract structured data from an ID card image or PDF.
  *
  * - extractIdData - A function that handles the ID card data extraction process.
  * - ExtractIdDataInput - The input type for the extractIdData function.
@@ -14,7 +14,7 @@ const ExtractIdDataInputSchema = z.object({
   photoDataUri: z
     .string()
     .describe(
-      "A photo of an ID card, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+      "A photo of an ID card or a PDF document, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
 });
 export type ExtractIdDataInput = z.infer<typeof ExtractIdDataInputSchema>;
@@ -39,7 +39,7 @@ const prompt = ai.definePrompt({
   output: {schema: ExtractIdDataOutputSchema},
   prompt: `You are an expert at extracting information from National ID cards, especially from Bangladesh.
   
-You will be provided with an image of an ID card or a server copy of one. Your task is to extract the following fields and return them in a structured JSON format:
+You will be provided with an image or a PDF of an ID card or a server copy of one. Your task is to extract the following fields and return them in a structured JSON format:
 - Name (extract the English name if available)
 - Father's Name
 - Mother's Name
@@ -47,9 +47,9 @@ You will be provided with an image of an ID card or a server copy of one. Your t
 - NID Number
 - Address (Combine all available address parts like 'Present Address' and 'Permanent Address' into one single string. Clean it up for readability.)
 
-Analyze the provided image carefully to find all the required information.
+Analyze the provided document carefully to find all the required information.
 
-Photo: {{media url=photoDataUri}}`,
+Document: {{media url=photoDataUri}}`,
 });
 
 const extractIdDataFlow = ai.defineFlow(
