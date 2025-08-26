@@ -99,9 +99,13 @@ const bdGovtLogo = 'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAIGNIUk0AAHom
 'AAAAAAAAAAAAAAAAAAAAAAAAAP//AAADgQAAAJI=';
 
 const addBanglaFont = (doc: jsPDF) => {
-    doc.addFileToVFS('SolaimanLipi.ttf', SolaimanLipi);
-    doc.addFont('SolaimanLipi.ttf', 'SolaimanLipi', 'normal');
-    doc.setFont('SolaimanLipi');
+    try {
+        doc.addFileToVFS('SolaimanLipi.ttf', SolaimanLipi);
+        doc.addFont('SolaimanLipi.ttf', 'SolaimanLipi', 'normal');
+        doc.setFont('SolaimanLipi');
+    } catch (e) {
+        console.error("Error adding Bangla font:", e);
+    }
 };
 
 const mmToPt = (mm: number) => mm * 2.83465;
@@ -123,64 +127,60 @@ const addFrontPage = async (doc: jsPDF, data: FormSchemaType) => {
     const cardHeight = mmToPt(54);
 
     // Header
-    doc.addImage(bdGovtLogo, 'PNG', mmToPt(4), mmToPt(3), mmToPt(10), mmToPt(10));
+    doc.addImage(bdGovtLogo, 'PNG', mmToPt(4), mmToPt(2), mmToPt(10), mmToPt(10));
     
     addBanglaFont(doc);
     doc.setFontSize(10);
-    doc.setTextColor(34, 139, 34); // Green
-    doc.text('গণপ্রজাতন্ত্রী বাংলাদেশ সরকার', mmToPt(16), mmToPt(7));
+    doc.setFont('SolaimanLipi', 'normal');
+    doc.setTextColor(0, 100, 0); // Dark Green
+    doc.text('গণপ্রজাতন্ত্রী বাংলাদেশ সরকার', mmToPt(16), mmToPt(5.5));
     doc.setFontSize(7);
-    doc.text("Government of the People's Republic of Bangladesh", mmToPt(16), mmToPt(9.5));
+    doc.text("Government of the People's Republic of Bangladesh", mmToPt(16), mmToPt(8));
 
-    doc.setDrawColor(34, 139, 34);
+    doc.setDrawColor(0, 100, 0);
     doc.setLineWidth(0.5);
-    doc.line(mmToPt(3), mmToPt(12.5), cardWidth - mmToPt(3), mmToPt(12.5));
+    doc.line(mmToPt(4), mmToPt(9.5), cardWidth - mmToPt(4), mmToPt(9.5));
 
-    doc.setFontSize(9);
+    doc.setFontSize(8);
     doc.setTextColor(255, 0, 0); // Red
-    doc.text('National ID Card / ', mmToPt(28), mmToPt(15.5));
+    doc.text('National ID Card /', mmToPt(30), mmToPt(12));
     addBanglaFont(doc);
-    doc.setFontSize(11);
-    doc.text('জাতীয় পরিচয় পত্র', mmToPt(50), mmToPt(15.5));
+    doc.setFontSize(9);
+    doc.text('জাতীয় পরিচয় পত্র', mmToPt(52), mmToPt(12));
+    
+    doc.setDrawColor(0, 100, 0);
+    doc.line(mmToPt(4), mmToPt(13.5), cardWidth - mmToPt(4), mmToPt(13.5));
 
-    doc.setDrawColor(34, 139, 34);
-    doc.line(mmToPt(3), mmToPt(17), cardWidth - mmToPt(3), mmToPt(17));
 
     // Watermark
     try {
       const watermark = await getImageDataUrl('/bd_govt.png');
-      doc.addImage(watermark, 'PNG', mmToPt(32), mmToPt(20), mmToPt(32), mmToPt(32), undefined, 'FAST', 0.1);
+      doc.addImage(watermark, 'PNG', mmToPt(42), mmToPt(22), mmToPt(35), mmToPt(35), undefined, 'FAST', 0.1);
     } catch(e) { console.error("Could not add watermark", e); }
 
 
-    // Photo
+    // Photo and Signature
     if (data.photo) {
         try {
-            doc.addImage(data.photo, 'JPEG', mmToPt(5), mmToPt(19), mmToPt(25), mmToPt(31));
+            doc.addImage(data.photo, 'JPEG', mmToPt(5), mmToPt(16), mmToPt(25), mmToPt(31));
         } catch (e) { console.error("Error adding photo to PDF", e); }
     }
-    // Signature
+    
     if (data.signature) {
         try {
-            doc.addImage(data.signature, 'PNG', mmToPt(8), mmToPt(43), mmToPt(20), mmToPt(5), undefined, 'FAST');
+            doc.addImage(data.signature, 'PNG', mmToPt(8), mmToPt(42), mmToPt(20), mmToPt(5), undefined, 'FAST');
         } catch (e) { console.error("Error adding signature to PDF", e); }
     }
-    doc.setLineWidth(0.5);
-    doc.setDrawColor(0, 0, 0);
-    doc.line(mmToPt(8), mmToPt(49), mmToPt(28), mmToPt(49));
-    addBanglaFont(doc);
-    doc.setFontSize(8);
-    doc.setTextColor(0, 0, 0);
-    doc.text('স্বাক্ষর', mmToPt(18), mmToPt(51), { align: 'center' });
 
     // Details
     const xPosLabel = mmToPt(33);
     const xPosValue = mmToPt(43);
-    let yPosDetails = mmToPt(25);
+    let yPosDetails = mmToPt(22);
     const yIncrement = mmToPt(5);
 
     doc.setFontSize(9);
     addBanglaFont(doc);
+    doc.setTextColor(0,0,0);
     doc.text('নাম:', xPosLabel, yPosDetails);
     doc.text(data.nameBangla || '', xPosValue, yPosDetails);
     yPosDetails += yIncrement;
@@ -221,29 +221,30 @@ const addBackPage = async (doc: jsPDF, data: FormSchemaType) => {
 
     addBanglaFont(doc);
     doc.setTextColor(0, 0, 0);
-    doc.setFontSize(8);
+    doc.setFontSize(7);
 
     const topText = 'এই কার্ডটি গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের সম্পত্তি। কার্ডটি ব্যবহারকারী ব্যতীত অন্য কোথাও পাওয়া গেলে নিকটস্থ পোস্ট অফিসে জমা দেবার জন্য অনুরোধ করা হলো।';
-    const topTextLines = doc.splitTextToSize(topText, cardWidth - mmToPt(10));
-    doc.text(topTextLines, cardWidth / 2, mmToPt(5), { align: 'center' });
+    const topTextLines = doc.splitTextToSize(topText, cardWidth - mmToPt(8));
+    doc.text(topTextLines, cardWidth / 2, mmToPt(4), { align: 'center', lineHeightFactor: 1.2 });
 
-    let yPos = mmToPt(12);
+    let yPos = mmToPt(11);
     doc.setDrawColor(0, 0, 0);
     doc.setLineWidth(0.5);
     doc.line(mmToPt(4), yPos, cardWidth - mmToPt(4), yPos);
 
     yPos += mmToPt(1);
-    doc.setFontSize(9);
+    doc.setFontSize(8);
     addBanglaFont(doc);
-    const addressLine = doc.splitTextToSize(`ঠিকানা: ${data.address || ''}`, cardWidth - mmToPt(12));
-    doc.text(addressLine, mmToPt(6), yPos + mmToPt(3));
+    const addressText = `ঠিকানা: ${data.address || ''}`;
+    const addressLines = doc.splitTextToSize(addressText, cardWidth - mmToPt(10));
+    doc.text(addressLines, mmToPt(5), yPos + mmToPt(2.5), {lineHeightFactor: 1.2});
 
-    yPos += mmToPt(8);
+    yPos += mmToPt(9);
     doc.line(mmToPt(4), yPos, cardWidth - mmToPt(4), yPos);
 
-    yPos += mmToPt(4);
+    yPos += mmToPt(3);
     doc.setFont('helvetica', 'normal');
-    doc.text('রক্তের গ্রুপ / Blood Group:', mmToPt(4), yPos);
+    doc.text('রক্তের গ্রুপ/Blood Group:', mmToPt(4), yPos);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(255, 0, 0);
     doc.text(data.bloodGroup || '', mmToPt(38), yPos);
@@ -252,37 +253,21 @@ const addBackPage = async (doc: jsPDF, data: FormSchemaType) => {
     addBanglaFont(doc);
     doc.text('জন্মস্থান:', mmToPt(55), yPos);
     doc.setFont('helvetica', 'normal');
-    doc.text(data.birthPlace || '', mmToPt(70), yPos);
-
+    doc.text(data.birthPlace || '', mmToPt(68), yPos);
+    
     yPos += mmToPt(2);
     doc.line(mmToPt(4), yPos, cardWidth - mmToPt(4), yPos);
-
-    let bottomY = cardHeight - mmToPt(15);
     
-    // QR Code
-    if (data.nidNumber) {
-        const qrData = `Name: ${data.name}\nNID: ${data.nidNumber}\nDOB: ${data.dob ? new Date(data.dob).toLocaleDateString('en-CA') : ''}`;
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(qrData)}`;
-        try {
-            const qrCodeData = await getImageDataUrl(qrUrl);
-            doc.addImage(qrCodeData, 'PNG', mmToPt(4), bottomY - mmToPt(5), mmToPt(20), mmToPt(20));
-        } catch (e) {
-            console.error("Could not load QR code image", e);
-        }
-    }
-
-    // Authorized Signature
+    // Authority Signature and Issue Date
+    let bottomY = cardHeight - mmToPt(18);
     addBanglaFont(doc);
     doc.setFontSize(8);
-    doc.text('প্রদানকারী কর্তৃপক্ষের স্বাক্ষর', mmToPt(48), bottomY + mmToPt(11), { align: 'center' });
-    doc.line(mmToPt(32), bottomY + mmToPt(10), mmToPt(64), bottomY + mmToPt(10));
+    doc.text('প্রদানকারী কর্তৃপক্ষের স্বাক্ষর', mmToPt(46), bottomY + mmToPt(1.5), { align: 'center' });
+    doc.line(mmToPt(30), bottomY, mmToPt(62), bottomY);
     
-    // Issue Date
-    addBanglaFont(doc);
-    doc.text('প্রদানের তারিখ:', mmToPt(68), bottomY + mmToPt(11));
+    doc.text('প্রদানের তারিখ:', mmToPt(65), bottomY + mmToPt(5));
     doc.setFont('helvetica', 'normal');
-    doc.text(data.issueDate ? new Date(data.issueDate).toLocaleDateString('en-GB') : '', mmToPt(88), bottomY + mmToPt(11));
-
+    doc.text(data.issueDate ? new Date(data.issueDate).toLocaleDateString('en-GB') : '', mmToPt(85), bottomY + mmToPt(5), { align: 'right'});
 
     // Barcode
     const barcodeY = cardHeight - mmToPt(7);
@@ -291,7 +276,7 @@ const addBackPage = async (doc: jsPDF, data: FormSchemaType) => {
     for (let i = 0; i < 120; i++) {
         if(x > cardWidth - mmToPt(4)) break;
         let width = (Math.random() * 1.5 + 0.5) / 2.83465;
-        let height = (Math.random() * 4 + 6)
+        let height = (Math.random() * 4 + 6);
         doc.rect(x, barcodeY, mmToPt(width), mmToPt(height), 'F');
         x += mmToPt(width + (Math.random() * 0.5 + 0.2) / 2.83465);
     }
