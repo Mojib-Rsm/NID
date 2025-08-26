@@ -235,7 +235,8 @@ const addServerCopy = async (doc: jsPDF, data: FormSchemaType) => {
     doc.rect(40, currentY -1, (pageWidth - 80), 20, 'F');
     doc.text("বর্তমান ঠিকানা", 50, currentY + 14);
     doc.setFontSize(10);
-    doc.text(data.presentAddress || '', 45, currentY + 40, { maxWidth: pageWidth - 90 });
+    const presentAddress = doc.splitTextToSize(data.presentAddress || '', pageWidth - 90);
+    doc.text(presentAddress, 45, currentY + 40);
     currentY += 60;
     
     doc.setFontSize(12);
@@ -244,7 +245,8 @@ const addServerCopy = async (doc: jsPDF, data: FormSchemaType) => {
     doc.rect(40, currentY -1, (pageWidth - 80), 20, 'F');
     doc.text("স্থায়ী ঠিকানা", 50, currentY + 14);
     doc.setFontSize(10);
-    doc.text(data.permanentAddress || '', 45, currentY + 40, { maxWidth: pageWidth - 90 });
+    const permanentAddress = doc.splitTextToSize(data.permanentAddress || '', pageWidth - 90);
+    doc.text(permanentAddress, 45, currentY + 40);
     currentY += 60;
     
 
@@ -302,6 +304,7 @@ export const generatePdf = async (data: FormSchemaType, cardType: CardType) => {
        break;
     case 'server':
       await addServerCopy(doc, data);
+      doc.deletePage(1);
       break;
     case 'signature':
       doc.addPage([242.6, 153]);
@@ -313,3 +316,5 @@ export const generatePdf = async (data: FormSchemaType, cardType: CardType) => {
   
   doc.save(`IdentityForge-${cardType}.pdf`);
 };
+
+    
