@@ -14,8 +14,8 @@ const emblemSvg = `
 </svg>`;
 
 const addBanglaFont = (doc: jsPDF) => {
-    doc.addFileToVFS('SolaimanLipi-normal.ttf', SolaimanLipi);
-    doc.addFont('SolaimanLipi-normal.ttf', 'SolaimanLipi', 'normal');
+    doc.addFileToVFS('SolaimanLipi.ttf', SolaimanLipi);
+    doc.addFont('SolaimanLipi.ttf', 'SolaimanLipi', 'normal');
     doc.setFont('SolaimanLipi');
 };
 
@@ -103,8 +103,7 @@ const addBackPage = (doc: jsPDF, data: FormSchemaType) => {
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text('Address:', 15, 20);
-    addBanglaFont(doc);
-    doc.setFont('SolaimanLipi', 'normal');
+    doc.setFont('SolaimanLipi');
     const addressLines = doc.splitTextToSize(data.address || "", cardWidth - 30);
     doc.text(addressLines, 15, 30);
     doc.setFont('helvetica', 'normal');
@@ -135,7 +134,6 @@ const addServerCopy = async (doc: jsPDF, data: FormSchemaType) => {
     const pageHeight = 841.89; // A4 height in points
     doc.addPage([pageWidth, pageHeight]);
     addBanglaFont(doc);
-    doc.setFont('SolaimanLipi', 'normal');
     
     // Helper to fetch and convert image to data URL
     const getImageDataUrl = async (path: string) => {
@@ -270,8 +268,7 @@ const addSignatureCard = (doc: jsPDF, data: FormSchemaType) => {
 
   doc.setTextColor(0,0,0);
   doc.setFontSize(10);
-  addBanglaFont(doc);
-  doc.setFont('SolaimanLipi', 'normal');
+  doc.setFont('SolaimanLipi');
   doc.text(data.name, cardWidth/2, 50, {align: 'center'});
 
   if (data.signature) {
@@ -299,6 +296,7 @@ export const generatePdf = async (data: FormSchemaType, cardType: CardType) => {
   switch(cardType) {
     case 'nid':
        doc.addPage([242.6, 153]); // Go back to landscape card
+       addBanglaFont(doc);
        addFrontPage(doc, data);
        addBackPage(doc, data);
        doc.deletePage(1); // remove the extra blank page
@@ -308,6 +306,7 @@ export const generatePdf = async (data: FormSchemaType, cardType: CardType) => {
       break;
     case 'signature':
       doc.addPage([242.6, 153]);
+      addBanglaFont(doc);
       addSignatureCard(doc, data);
       doc.deletePage(1);
       break;
