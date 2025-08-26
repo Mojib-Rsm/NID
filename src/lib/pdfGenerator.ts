@@ -141,8 +141,6 @@ const addServerCopy = async (doc: jsPDF, data: FormSchemaType) => {
     
     try {
         const govtLogo = await getImageDataUrl('/bd_govt.png');
-        const ecLogo = await getImageDataUrl('/election-commission-logo.png');
-        
         doc.addImage(govtLogo, 'PNG', 40, 40, 50, 50);
     } catch (e) {
         console.error("Could not load logo images", e);
