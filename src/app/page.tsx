@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Sun, Moon, Sparkles, Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { extractIdData } from "@/ai/flows/extract-id-data-flow";
+// import { extractIdData } from "@/ai/flows/extract-id-data-flow";
 
 
 const defaultValues: FormSchemaType = {
@@ -144,42 +144,42 @@ export default function Home() {
   };
   
   const handleFileExtract = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const dataUri = reader.result as string;
-        startExtracting(async () => {
-          try {
-            const extractedData = await extractIdData({ photoDataUri: dataUri });
-            const newDob = new Date(extractedData.dob);
-            const newIssueDate = new Date(extractedData.issueDate);
-            const updatedData = {
-              ...form.getValues(),
-              ...extractedData,
-              dob: newDob,
-              issueDate: newIssueDate,
-            };
-            form.reset(updatedData);
-            setData(updatedData);
-            toast({
-              title: "Data Extracted",
-              description: "The information from the ID card has been filled into the form.",
-            });
-          } catch(err) {
-            console.error(err)
-            toast({
-              variant: "destructive",
-              title: "Extraction Failed",
-              description: "Could not extract data from the document. Please try a clearer one.",
-            });
-          }
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-     // Reset file input to allow re-selection of the same file
-     e.target.value = "";
+    // const file = e.target.files?.[0];
+    // if (file) {
+    //   const reader = new FileReader();
+    //   reader.onloadend = () => {
+    //     const dataUri = reader.result as string;
+    //     startExtracting(async () => {
+    //       try {
+    //         const extractedData = await extractIdData({ photoDataUri: dataUri });
+    //         const newDob = new Date(extractedData.dob);
+    //         const newIssueDate = new Date(extractedData.issueDate);
+    //         const updatedData = {
+    //           ...form.getValues(),
+    //           ...extractedData,
+    //           dob: newDob,
+    //           issueDate: newIssueDate,
+    //         };
+    //         form.reset(updatedData);
+    //         setData(updatedData);
+    //         toast({
+    //           title: "Data Extracted",
+    //           description: "The information from the ID card has been filled into the form.",
+    //         });
+    //       } catch(err) {
+    //         console.error(err)
+    //         toast({
+    //           variant: "destructive",
+    //           title: "Extraction Failed",
+    //           description: "Could not extract data from the document. Please try a clearer one.",
+    //         });
+    //       }
+    //     });
+    //   };
+    //   reader.readAsDataURL(file);
+    // }
+    //  // Reset file input to allow re-selection of the same file
+    //  e.target.value = "";
   }
 
 
@@ -227,7 +227,7 @@ export default function Home() {
                    <label htmlFor="image-extract-input" className="text-sm font-medium block">
                       Extract from Document (AI)
                     </label>
-                    <Button asChild className="w-full" variant="outline">
+                    <Button asChild className="w-full" variant="outline" disabled>
                       <label htmlFor="image-extract-input" className="cursor-pointer">
                          {isExtracting ? (
                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
