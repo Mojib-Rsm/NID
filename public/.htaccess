@@ -1,0 +1,10 @@
+# DO NOT REMOVE. CLOUDRUNNER USE ONLY.
+# IF YOU ARE HAVING TROUBLE, VERIFY THE FOLLOWING ARE ALL SET CORRECTLY IN THE cPANEL NODE.JS APP SCREEN
+#   - App Directory: /nid
+#   - App URL: your domain
+#   - App Startup file: server.js (or whichever you are using)
+PassengerAppRoot "/home/user/nid"
+PassengerBaseURI "/"
+PassengerNodejs "/home/user/nodevenv/nid/16/bin/node"
+PassengerAppType node
+PassengerStartupFile "node_modules/next/dist/bin/next"
